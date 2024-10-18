@@ -3,14 +3,17 @@
     <h1 class="pd-3">Heeloo</h1>
   </div>
   <div class="flex" v-for="(group, index) in uniqueSubcategories" :key="index">
-  <Popover class="relative bg-orange-500 w-100 w-screen flex-auto overflow-hidden rounded-3xl bg-white text-sm leading-6 shadow-lg ring-1">
-    <PopoverButton class="inline-flex items-center gap-x-1 text-sm font-semibold leading-6 text-gray-900">
+  <Popover class="relative shadow-lg ring-1 ring-gray-900/5 w-100 w-screen flex-auto overflow-hidden rounded-3xl bg-white text-sm leading-6 shadow-lg ring-1">
+    <PopoverButton class="dropdown__filter inline-flex h-12 items-center gap-x-1 text-sm font-semibold leading-6 text-gray-900 pl-3">
       <span>{{group.name}}</span>
       <ChevronDownIcon class="h-5 w-5" aria-hidden="true" />
     </PopoverButton>
+    <a href="./EditView.vue">Edit</a>
+    <RouterLink to="/filter/edit">Edit</RouterLink>
+    <span>Delete</span>
 
     <transition enter-active-class="transition ease-out duration-200" enter-from-class="opacity-0 translate-y-1" enter-to-class="opacity-100 translate-y-0" leave-active-class="transition ease-in duration-150" leave-from-class="opacity-100 translate-y-0" leave-to-class="opacity-0 translate-y-1">
-      <PopoverPanel class="left-1/2 z-10 mt-5 flex w-screen max-w-max -translate-x-1/2 px-4">
+      <PopoverPanel class="left-1/2 z-10 mt-5 flex w-screen max-w-max px-4">
         <div class="w-screen max-w-md flex-auto overflow-hidden rounded-3xl bg-white text-sm leading-6 ring-gray-900/5">
           <div class="p-4">
             <div v-for="(value, idx) in group.subcategories" :key="idx" class="group relative flex gap-x-6 rounded-lg p-4 hover:bg-gray-50">
@@ -105,5 +108,8 @@ onMounted(fetchSubcategories);
     display: flex;
     align-items: center;
   }
+}
+.dropdown__filter{
+  outline: none;
 }
 </style>
