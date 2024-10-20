@@ -16,9 +16,31 @@
         <span class="text-lg ">+</span>
         </button>
   </div>
+
+  <button @click="saveValues" class="mt-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+    Save
+  </button>
 </div>
 
-  </template>
+<transition 
+    enter-active-class="transition-opacity duration-500" 
+    leave-active-class="transition-opacity duration-500"
+    enter-from-class="opacity-0" 
+    enter-to-class="opacity-100" 
+    leave-from-class="opacity-100" 
+    leave-to-class="opacity-0">
+    <div v-show="isVisible" class="fixed top-5 right-5 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded shadow-md transition-transform duration-500 ease-in-out transform"
+         role="alert"
+         :class="{'opacity-0 scale-95': !isVisible, 'opacity-100 scale-100': isVisible}">
+      <div class="flex items-center">
+        <svg class="w-6 h-6 fill-current text-green-500 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+          <path d="M9 11.414L5.707 8.121a1 1 0 0 0-1.414 1.415l4 4a1 1 0 0 0 1.414 0l8-8a1 1 0 0 0-1.414-1.414L9 11.414z"/>
+        </svg>
+        <span>Saved successfully!</span>
+      </div>
+    </div>
+  </transition>
+</template>
 
 <script setup>
 import { ref, onMounted, watch } from 'vue';
@@ -29,6 +51,7 @@ const route = useRoute();
 const filterId = ref(route.params.id); 
 const filterDetails = ref(null);
 const enteredValue = ref();
+let isVisible = ref(false);
 
 const fetchGroupDetails = async () => {
   try {
@@ -40,8 +63,38 @@ const fetchGroupDetails = async () => {
 };
 
 const addNewValue = () => {
-      filterDetails.value.filter.filter_values.push({ value: '' });
-    };
+    filterDetails.value.filter.filter_values.push({ value: '' });
+};
+
+const saveValues = () => {
+  filterDetails.value.filter.filter_values.forEach((filterValue) => {
+    if (filterValue.id) {
+      axios.put(`https://aerobay.onrender.com/api/filter_values/${filterValue.id}`, {
+        "value": filterValue.value,
+        "filter_id": filterId.value
+      })
+      .then(response => {
+        console.log("Значение успешно обновлено:", response.data);
+        showNotification();
+      })
+      .catch(error => {
+        console.error("Ошибка при обновлении значения:", error);
+      });
+    } else {
+      axios.post(`https://aerobay.onrender.com/api/filter_values`, {
+        "value": filterValue.value,
+        "filter_id": filterId.value
+      })
+      .then(response => {
+        console.log("Новое значение успешно добавлено:", response.data);
+        showNotification();
+      })
+      .catch(error => {
+        console.error("Ошибка при добавлении значения:", error);
+      });
+    }
+  });
+};
 
 watch(() => route.params.id,
       async (newId) => {
@@ -56,7 +109,12 @@ watch(() => route.params.id,
       { immediate: true }
     );
 
-
+    const showNotification = () => {
+  isVisible.value = true; 
+  setTimeout(() => {
+    isVisible.value = false; 
+  }, 5000);
+};
 onMounted(async() => {
   await fetchGroupDetails();
   filterDetails.value;
