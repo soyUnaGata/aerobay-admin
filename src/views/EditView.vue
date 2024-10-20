@@ -1,19 +1,23 @@
 <template>
-    <div>
-      <label for="price" class="block text-sm font-medium leading-6 text-gray-900">{{filterDetails.filter.name}}</label>
-      <div class="relative mt-2 rounded-md shadow-sm">
-        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-          <span class="text-gray-500 sm:text-sm">$</span>
-        </div>
-        <input type="text" name="price" id="price" class="block w-full rounded-md border-0 py-1.5 pl-7 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" placeholder="0.00" />
-        <div class="absolute inset-y-0 right-0 flex items-center">
-          <label for="currency" class="sr-only">Currency</label>
-          <select id="currency" name="currency" class="h-full rounded-md border-0 bg-transparent py-0 pl-2 pr-7 text-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm">
-            <option>USD</option>
-          </select>
-        </div>
-      </div>
-    </div>
+  <div>
+  <label for="filter" class="block text-sm font-medium leading-6 text-gray-900">
+    {{ filterDetails.filter.name }}
+  </label>
+
+  <div class="relative w-full flex gap-2.5 mt-2 rounded-md shadow-sm" v-for="(value, index) in filterDetails.filter.filter_values" :key="index">
+    <input type="text" name="filter" id="filter" :value="value.value" 
+           class="block rounded-md border-0 py-1.5 pl-7 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300 
+                  placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" 
+           placeholder="Введите значение" />
+
+        <button v-if="index === filterDetails.filter.filter_values.length - 1" 
+                class="inset-y-0 justify-center right-0 flex items-center px-3 bg-green-500 hover:bg-green-600 active:bg-green-700 
+                    text-white font-bold rounded-full w-8 h-8 shadow-lg transition transform hover:scale-110 active:scale-95">
+        <span class="text-lg ">+</span>
+        </button>
+  </div>
+</div>
+
   </template>
 
 <script setup>
@@ -34,12 +38,12 @@ const fetchGroupDetails = async () => {
   }
 };
 
-watch(
-      () => route.params.id,
+watch(() => route.params.id,
       async (newId) => {
         if (newId) {
           filterId.value = newId;
           await fetchGroupDetails(); 
+          filterDetails.value;
         } else {
           errorMessage.value = 'ID is not defined';
         }
