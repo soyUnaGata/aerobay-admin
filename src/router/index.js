@@ -18,7 +18,7 @@ const router = createRouter({
       component: () => import('../views/AboutView.vue')
     },
     {
-      path: '/filter/edit',
+      path: '/filter/edit/:id',
       name: 'filter-edit',
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
