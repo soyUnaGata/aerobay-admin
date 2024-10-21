@@ -43,9 +43,6 @@ import { ref, onMounted, computed, watch, } from "vue";
 const filters = ref(); 
 const filterId = ref(null);
 const filter = ref(null);
-const route = ref(null);
-
-
 
 
 const fetchFilters = async () => {
@@ -62,10 +59,6 @@ const fetchFilters = async () => {
 const uniqueSubcategories = computed(() => {
   return groupBy(filter.filter_values, 'name');
 });
-
-// const submitForm = () => {
-
-// };
 
 
 onMounted(async () => {

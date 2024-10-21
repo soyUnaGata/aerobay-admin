@@ -3,7 +3,7 @@
   <label for="filter" class="block text-sm font-medium leading-6 text-gray-900">
     {{ filterDetails?.filter?.name }}
   </label>
-
+  <form @submit.prevent="handleSubmit">
   <div class="relative w-full flex gap-2.5 mt-2 rounded-md shadow-sm" v-for="(value, index) in filterDetails.filter.filter_values" :key="index">
     <input type="text" name="filter" id="filter" v-model="value.value"
            class="block rounded-md border-0 py-1.5 pl-7 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300 
@@ -15,11 +15,17 @@
                     text-white font-bold rounded-full w-8 h-8 shadow-lg transition transform hover:scale-110 active:scale-95">
         <span class="text-lg ">+</span>
         </button>
+
+        <button @click="removeValue(index, value.id)"
+            class="flex items-center justify-center w-8 h-8 bg-red-500 hover:bg-red-600 active:bg-red-700 text-white rounded-full shadow-lg transition transform hover:scale-110 active:scale-95">
+      <span class="text-lg">−</span>
+    </button>
   </div>
 
-  <button @click="saveValues" class="mt-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+  <button type="submit" class="mt-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
     Save
   </button>
+  </form>
 </div>
 
 <transition 
@@ -52,6 +58,7 @@ const filterId = ref(route.params.id);
 const filterDetails = ref(null);
 const enteredValue = ref();
 let isVisible = ref(false);
+const deleteIds = ref([]);
 
 const fetchGroupDetails = async () => {
   try {
@@ -66,10 +73,17 @@ const addNewValue = () => {
     filterDetails.value.filter.filter_values.push({ value: '' });
 };
 
-const saveValues = () => {
-  filterDetails.value.filter.filter_values.forEach((filterValue) => {
+const removeValue = (index, id) => {
+  filterDetails.value.filter.filter_values.splice(index, 1);
+  if (id) {
+    deleteIds.value.push(id);
+  }
+};
+
+const handleSubmit = async () => { // Массив для хранения id значений, которые нужно удалить
+  for (const filterValue of filterDetails.value.filter.filter_values) {
     if (filterValue.id) {
-      axios.put(`https://aerobay.onrender.com/api/filter_values/${filterValue.id}`, {
+      await axios.put(`https://aerobay.onrender.com/api/filter_values/${filterValue.id}`, {
         "value": filterValue.value,
         "filter_id": filterId.value
       })
@@ -81,7 +95,7 @@ const saveValues = () => {
         console.error("Ошибка при обновлении значения:", error);
       });
     } else {
-      axios.post(`https://aerobay.onrender.com/api/filter_values`, {
+      await axios.post(`https://aerobay.onrender.com/api/filter_values`, {
         "value": filterValue.value,
         "filter_id": filterId.value
       })
@@ -93,8 +107,21 @@ const saveValues = () => {
         console.error("Ошибка при добавлении значения:", error);
       });
     }
-  });
+  }
+
+  for (let id of deleteIds.value) {
+    await axios.delete(`https://aerobay.onrender.com/api/filter_values/${id}`)
+      .then(response => {
+        console.log("Значение успешно удалено из базы:", response.data);
+      })
+      .catch(error => {
+        console.error("Ошибка при удалении значения из базы:", error);
+      });
+  }
+
+  deleteIds.value = [];
 };
+
 
 watch(() => route.params.id,
       async (newId) => {
@@ -115,6 +142,7 @@ watch(() => route.params.id,
     isVisible.value = false; 
   }, 5000);
 };
+
 onMounted(async() => {
   await fetchGroupDetails();
   filterDetails.value;
