@@ -1,15 +1,13 @@
 <template>
-  
-   <div class="flex" v-for="(filter, index) in filters" :key="index">
- <Popover class="relative shadow-lg ring-1 ring-gray-900/5 w-100 w-screen flex-auto overflow-hidden rounded-3xl bg-white text-sm leading-6 shadow-lg ring-1">
+   <div class="flex" name="fade" v-for="(filter, index) in filters" :key="filter.id" :id="filter.id">
+ <Popover :id="filter.id" class="relative shadow-lg ring-1 ring-gray-900/5 w-100 w-screen flex-auto overflow-hidden rounded-3xl bg-white text-sm leading-6 shadow-lg ring-1">
     <PopoverButton class="dropdown__filter inline-flex h-12 items-center gap-x-1 text-sm font-semibold leading-6 text-gray-900 pl-3">
       <span>{{filter.name}}</span>
       <span>{{ group }}</span>
       <ChevronDownIcon class="h-5 w-5" aria-hidden="true" />
     </PopoverButton>
-    <a :href="`/filter/edit/${filter.id}`">Edit</a>
     <RouterLink :to="`/filter/edit/${filter.id}`">Edit</RouterLink>
-    <span>Delete</span>
+    <button @click="removeFilter(filter.id, index)">Delete</button>
 
     <transition enter-active-class="transition ease-out duration-200" enter-from-class="opacity-0 translate-y-1" enter-to-class="opacity-100 translate-y-0" leave-active-class="transition ease-in duration-150" leave-from-class="opacity-100 translate-y-0" leave-to-class="opacity-0 translate-y-1">
       <PopoverPanel class="left-1/2 z-10 mt-5 flex w-screen max-w-max px-4">
@@ -60,6 +58,23 @@ const uniqueSubcategories = computed(() => {
   return groupBy(filter.filter_values, 'name');
 });
 
+const removeFilter = async (id, index) => {
+  try {
+    await axios.delete(`https://aerobay.onrender.com/api/filter/${id}`);
+    filters.value.splice(index, 1);
+    console.log("Фильтр успешно удален");
+  } catch (error) {
+    console.error("Ошибка при удалении фильтра:", error);
+  }
+  
+}
+
+watch(filters.value, (newValue, oldValue) => {
+  console.log('Массив filters изменился:');
+  console.log('Старое значение:', oldValue);
+  console.log('Новое значение:', newValue);
+}, { deep: true });
+
 
 onMounted(async () => {
   await fetchFilters();
@@ -105,5 +120,16 @@ const callsToAction = [
 }
 .dropdown__filter{
   outline: none;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s;
+}
+.fade-enter, .fade-leave-to{
+  opacity: 0;
+}
+
+.filter-item {
+  margin-bottom: 10px;
 }
 </style>
