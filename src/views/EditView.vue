@@ -1,32 +1,87 @@
 <template>
-  <div class="w-full">
-  <label for="filter" class="block text-sm font-medium leading-6 text-gray-900">
-    {{ filterDetails?.filter?.name }}
-  </label>
-  <form @submit.prevent="handleSubmit">
-  <div class="relative w-full flex gap-2.5 mt-2 rounded-md shadow-sm" v-for="(value, index) in filterDetails.filter.filter_values" :key="index">
-    <input type="text" name="filter" id="filter" v-model="value.value"
-           class="block rounded-md border-0 py-1.5 pl-7 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300 
-                  placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" 
-           placeholder="Enter value" />
+   <div class="flex items-baseline gap-12">
+    <div class="">
+      <form v-if="filterDetails && filterDetails.filter" @submit.prevent="handleSubmit">
+        <label for="filterName" class="block text-sm font-medium leading-6 text-gray-900 mb-2">
+          Filter name
+        </label>
+        <input type="text"
+               id="filterName"
+               class="block rounded-md border-0 py-1.5 pl-7 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300
+                      placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+               v-model="filterDetails.filter.name"
+               placeholder="Enter filter name"/>
 
-        <button v-if="index === filterDetails.filter.filter_values.length - 1" @click="addNewValue()"
-                class="inset-y-0 justify-center right-0 flex items-center px-3 bg-green-500 hover:bg-green-600 active:bg-green-700 
-                    text-white font-bold rounded-full w-8 h-8 shadow-lg transition transform hover:scale-110 active:scale-95">
-        <span class="text-lg ">+</span>
+        <div class="mt-4">
+          <label for="filterValues" class="block text-sm font-medium leading-6 text-gray-900 mb-2">
+            Filter values
+          </label>
+
+          <div v-for="(value, index) in filterDetails.filter.filter_values" :key="index" class="relative flex gap-2.5 mt-2">
+            <input type="text"
+                   v-model="value.value"
+                   class="block rounded-md border-0 py-1.5 pl-7 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300
+                          placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                   placeholder="Enter value"/>
+
+            <button v-if="index === filterDetails.filter.filter_values.length - 1" @click="addNewValue"
+                    class="inset-y-0 justify-center right-0 flex items-center px-3 bg-green-500 hover:bg-green-600 active:bg-green-700 
+                           text-white font-bold rounded-full w-8 h-8 shadow-lg transition transform hover:scale-110 active:scale-95">
+              <span class="text-lg">+</span>
+            </button>
+
+            <button @click="removeValue(index, value.id)"
+                    class="flex items-center justify-center w-8 h-8 bg-red-500 hover:bg-red-600 active:bg-red-700 text-white rounded-full shadow-lg transition transform hover:scale-110 active:scale-95">
+              <span class="text-lg">−</span>
+            </button>
+          </div>
+        </div>
+        <button type="submit" class="mt-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+          Save
         </button>
+      </form>
+    </div>
 
-        <button @click="removeValue(index, value.id)"
-            class="flex items-center justify-center w-8 h-8 bg-red-500 hover:bg-red-600 active:bg-red-700 text-white rounded-full shadow-lg transition transform hover:scale-110 active:scale-95">
-      <span class="text-lg">−</span>
-    </button>
+    <div class="">
+      <form v-if="filterDetails && filterDetails.filter" @submit.prevent="handleSubmit">
+        <label for="category" class="block text-sm font-medium leading-6 text-gray-900 mt-4 mb-2">
+          Category
+        </label>
+        <select v-if="categories.data" id="category"
+                v-model="filterDetails.filter.category_id"
+                class="block w-full border-0 rounded-md border-gray-300 text-gray-900 ring-1 
+                shadow-sm ring-inset ring-gray-300 placeholder:text-gray-400
+                focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm
+                py-1.5 pl-7 pr-20">
+          <option value="" disabled selected>Select category</option>
+          <option v-for="category in categories.data" :key="category.id" :value="category.id">
+            {{ category.name }}
+          </option>
+        </select>
+        <div v-else class="text-sm text-red-600 mt-2">
+            There is no categories yet.
+        </div>
+
+        <label for="group" class="block text-sm font-medium leading-6 text-gray-900 mt-4 mb-2">
+          Group
+        </label>
+        <div v-if="groups.length > 0">
+          <select id="group"
+                  v-model="filterDetails.filter.group_id"
+                  class="block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+            <option value="" disabled selected>Choose group</option>
+            <option v-for="group in groups" :key="group.id" :value="group.id">
+              {{ group.name }}
+            </option>
+          </select>
+        </div>
+        <div v-else class="text-sm text-red-600 mt-2">
+          There is no groups yet.
+        </div>
+
+      </form>
+    </div>
   </div>
-
-  <button type="submit" class="mt-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
-    Save
-  </button>
-  </form>
-</div>
 
 <transition 
     enter-active-class="transition-opacity duration-500" 
@@ -55,17 +110,50 @@ import axios from 'axios';
 
 const route = useRoute();
 const filterId = ref(route.params.id); 
-const filterDetails = ref(null);
+const filterDetails = ref({
+  filter: {
+    name: '',
+    category_id: null,
+    group_id: null,
+    filter_values: []
+  }
+});
+const filterName = ref(null)
 const enteredValue = ref();
 let isVisible = ref(false);
 const deleteIds = ref([]);
+const categories = ref([]);
+const groups = ref([]);
 
-const fetchGroupDetails = async () => {
+const fetchFilterDetails = async () => {
   try {
     const response = await axios.get(`https://aerobay.onrender.com/api/filter/${filterId.value}`);
+
     filterDetails.value = response.data;
+    if (!filterDetails.value.filter.filter_values || filterDetails.value.filter.filter_values.length === 0) {
+      filterDetails.value.filter.filter_values = [{ value: '' }];
+    }
   } catch (error) {
     console.error('Ошибка при загрузке группы:', error);
+  }
+};
+
+const fetchCategories = async () => {
+  try {
+    const response = await axios.get(`https://aerobay.onrender.com/api/categories`);
+    categories.value = response.data;
+    console.log(categories.value)
+  } catch (error) {
+    console.error('Ошибка при загрузке категорий:', error);
+  }
+};
+
+const fetchGroups = async () => {
+  try {
+    const response = await axios.get(`https://aerobay.onrender.com/api/groups`);
+    groups.value = response.data;
+  } catch (error) {
+    console.error('Ошибка при загрузке групп:', error);
   }
 };
 
@@ -80,72 +168,66 @@ const removeValue = (index, id) => {
   }
 };
 
-const handleSubmit = async () => { // Массив для хранения id значений, которые нужно удалить
-  for (const filterValue of filterDetails.value.filter.filter_values) {
-    if (filterValue.id) {
-      await axios.put(`https://aerobay.onrender.com/api/filter_values/${filterValue.id}`, {
-        "value": filterValue.value,
-        "filter_id": filterId.value
-      })
-      .then(response => {
-        console.log("Значение успешно обновлено:", response.data);
-        showNotification();
-      })
-      .catch(error => {
-        console.error("Ошибка при обновлении значения:", error);
-      });
-    } else {
-      await axios.post(`https://aerobay.onrender.com/api/filter_values`, {
-        "value": filterValue.value,
-        "filter_id": filterId.value
-      })
-      .then(response => {
-        console.log("Новое значение успешно добавлено:", response.data);
-        showNotification();
-      })
-      .catch(error => {
-        console.error("Ошибка при добавлении значения:", error);
-      });
-    }
-  }
-
-  for (let id of deleteIds.value) {
-    await axios.delete(`https://aerobay.onrender.com/api/filter_values/${id}`)
-      .then(response => {
-        console.log("Значение успешно удалено из базы:", response.data);
-      })
-      .catch(error => {
-        console.error("Ошибка при удалении значения из базы:", error);
-      });
-  }
-
-  deleteIds.value = [];
-};
-
-
-watch(() => route.params.id,
-      async (newId) => {
-        if (newId) {
-          filterId.value = newId;
-          await fetchGroupDetails(); 
-          filterDetails.value;
-        } else {
-          errorMessage.value = 'ID is not defined';
-        }
-      },
-      { immediate: true }
-    );
-
-    const showNotification = () => {
-  isVisible.value = true; 
+let showNotification = () => {
+  isVisible.value = true;
   setTimeout(() => {
-    isVisible.value = false; 
+    isVisible.value = false;
   }, 5000);
 };
 
-onMounted(async() => {
-  await fetchGroupDetails();
-  filterDetails.value;
-  console.log(filterDetails.value);
+const handleSubmit = async () => {
+  try {
+    await axios.put(`https://aerobay.onrender.com/api/filter/${filterId.value}`, {
+      "name": filterDetails.value.filter.name,
+      "category_id": filterDetails.value.filter.category_id,
+      "group_id": filterDetails.value.filter.group_id
+    });
+    alert('Фильтр успешно обновлен!');
+
+    for (const filterValue of filterDetails.value.filter.filter_values) {
+        if (filterValue.value.trim() === '') {
+        continue; 
+      }
+
+      if (filterValue.id) {
+        await axios.put(`https://aerobay.onrender.com/api/filter_values/${filterValue.id}`, {
+          "value": filterValue.value,
+          "filter_id": filterId.value
+        });
+      } else {
+        await axios.post(`https://aerobay.onrender.com/api/filter_values`, {
+          "value": filterValue.value,
+          "filter_id": filterId.value
+        });
+      }
+    }
+
+    for (let id of deleteIds.value) {
+      await axios.delete(`https://aerobay.onrender.com/api/filter_values/${id}`);
+    }
+
+    deleteIds.value = [];
+
+    showNotification();
+  } catch (error) {
+    console.error('Ошибка при обновлении данных:', error);
+  }
+};
+
+
+watch(
+  () => route.params.id,
+  async (newId) => {
+    if (newId) {
+      filterId.value = newId;
+      await fetchFilterDetails(); 
+    }
+  },
+);
+
+onMounted(async () => {
+  await fetchFilterDetails();
+  fetchCategories();
+  fetchGroups();
 });
 </script>
