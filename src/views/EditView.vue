@@ -1,4 +1,5 @@
 <template>
+    <RouterLink to="/about">Back</RouterLink>
    <div class="flex items-baseline gap-12">
     <div class="">
       <form v-if="filterDetails && filterDetails.filter" @submit.prevent="handleSubmit">
@@ -30,7 +31,7 @@
               <span class="text-lg">+</span>
             </button>
 
-            <button @click="removeValue(index, value.id)"
+            <button type="button" @click="removeValue(index, value.id)"
                     class="flex items-center justify-center w-8 h-8 bg-red-500 hover:bg-red-600 active:bg-red-700 text-white rounded-full shadow-lg transition transform hover:scale-110 active:scale-95">
               <span class="text-lg">−</span>
             </button>
@@ -65,16 +66,18 @@
         <label for="group" class="block text-sm font-medium leading-6 text-gray-900 mt-4 mb-2">
           Group
         </label>
-        <div v-if="groups.length > 0">
-          <select id="group"
+          <select v-if="groups.data"
+          id="group"
                   v-model="filterDetails.filter.group_id"
-                  class="block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                  class="block w-full border-0 rounded-md border-gray-300 text-gray-900 ring-1 
+                shadow-sm ring-inset ring-gray-300 placeholder:text-gray-400
+                focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm
+                py-1.5 pl-7 pr-20">
             <option value="" disabled selected>Choose group</option>
-            <option v-for="group in groups" :key="group.id" :value="group.id">
+            <option v-for="group in groups.data" :key="group.id" :value="group.id">
               {{ group.name }}
             </option>
           </select>
-        </div>
         <div v-else class="text-sm text-red-600 mt-2">
           There is no groups yet.
         </div>
@@ -182,7 +185,6 @@ const handleSubmit = async () => {
       "category_id": filterDetails.value.filter.category_id,
       "group_id": filterDetails.value.filter.group_id
     });
-    alert('Фильтр успешно обновлен!');
 
     for (const filterValue of filterDetails.value.filter.filter_values) {
         if (filterValue.value.trim() === '') {
