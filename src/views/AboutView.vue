@@ -1,4 +1,5 @@
 <template>
+   <Loader v-if="loading" />
   <div>
     <a :href="`/filter/add`">Add</a>
   </div>
@@ -38,22 +39,27 @@
 <script setup>
 import axios from "axios";
 import groupBy from 'lodash/groupBy';
+import Loader from '@/components/Loader.vue';
 import { ref, onMounted, computed, watch, } from "vue";
+
 
 const filters = ref(); 
 const filterId = ref(null);
 const filter = ref(null);
+const loading = ref(true);
 
 
 const fetchFilters = async () => {
   try {
     const response = await axios.get('https://aerobay.onrender.com/api/filter');
     console.log('-')
-    filters.value = response.data;
+    filters.value = await response.data;
 
   } catch (error) {
     console.error('Ошибка при загрузке подкатегорий:', error);
-  }
+  }finally {
+        loading.value = false; 
+      }
 };
 
 
