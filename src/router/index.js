@@ -30,7 +30,17 @@ const router = createRouter({
       path: '/filter/add',
       name: 'filter-add',
       component: () => import('../views/AddView.vue')
-    }
+    },
+    {
+      path: '/accesories',
+      name: 'accessories',
+      component: () => import('../views/AccessoriesView.vue')
+    },
+    {
+      path: '/accesories/edit/:id',
+      name: 'accessories-edit',
+      component: () => import('../views/AcEditView.vue')
+    },
   ]
 })
 
