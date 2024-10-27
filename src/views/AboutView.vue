@@ -38,7 +38,6 @@
 
 <script setup>
 import axios from "axios";
-import groupBy from 'lodash/groupBy';
 import Loader from '@/components/Loader.vue';
 import { ref, onMounted, computed, watch, } from "vue";
 
