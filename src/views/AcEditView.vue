@@ -98,6 +98,19 @@
         />
       </div>
 
+      <div class="space-y-2">
+        <label class="block text-gray-700">Manufacturer</label>
+        <ManufacturerSelect :selectedManufacturerId="accessoryDetails.manufacturer_id"
+                            @update:selectedManufacturerId="updateManufacturerId"/>
+      </div>
+
+      <div class="space-y-2">
+        <CategorySelect
+            :selectedCategoryId="accessoryDetails.category_id"
+            @update:selectedCategoryId="updateCategoryId"
+        />
+      </div>
+
       <!--      <div class="space-y-2 col-span-2">-->
       <!--        <label class="block text-gray-700">Фильтры</label>-->
       <!--        <multiselect-->
@@ -113,35 +126,43 @@
       <!--        />-->
       <!--      </div>-->
 
-      <Multiselect
-          :options="filters"
-          v-model="selectedFilters"
-      />
+      <div class="space-y-2">
+        <label class="block text-gray-700">Filter</label>
+        <Multiselect
+            :options="filters"
+            v-model="selectedFilters"
+        />
+      </div>
+
     </div>
   </div>
 </template>
 
 
 <script setup>
-import {computed, onMounted, ref, watchEffect} from 'vue';
+import {onMounted, ref, watchEffect} from 'vue';
 import {useRoute} from 'vue-router';
 import {quillEditor} from 'vue3-quill';
 import 'quill/dist/quill.snow.css';
 import 'vue-multiselect/dist/vue-multiselect.min.css';
 import axios from "axios";
 import Multiselect from '../components/Multiselect.vue'
+import ManufacturerSelect from '../components/ManufacturerSelect.vue'
+import CategorySelect from "@/components/CategorySelect.vue";
 
 const route = useRoute();
 const accessoryId = ref(route.params.id);
 const accessoryDetails = ref({});
 const filters = ref([]);
+const manufacturers = ref([]);
 const combinedFilterOptions = ref();
-const allFilterValues = ref([])
+const allFilterValues = ref([]);
 
 const accessories = async () => {
   try {
     const response = await axios.get(`https://aerobay.onrender.com/api/accessories/${accessoryId.value}`);
     accessoryDetails.value = response.data.accessory;
+    console.log(accessoryDetails.value);
     // if (!filterDetails.value.filter.filter_values || filterDetails.value.filter.filter_values.length === 0) {
     //   filterDetails.value.filter.filter_values = [{ value: '' }];
     // }
@@ -164,15 +185,22 @@ const fetchFilters = async () => {
   }
 };
 
-const combinedFilters = () => {
-  const selectedFilterIds = new Set(selectedFilters.value.map(f => f.value));
-  combinedFilterOptions.value = [...selectedFilters.value];
-  fetchFilters.value.forEach(filter => {
-    console.log(filter.value);
-    if (!selectedFilterIds.has(filter.value)) {
-      combinedFilterOptions.value.push(filter);
-    }
-  });
+const fetchManufacturer = async () => {
+  try {
+    const response = await axios.get(`https://aerobay.onrender.com/api/manufactures`);
+    manufacturers.value = response.data.data;
+    console.log(manufacturers.value)
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+const updateManufacturerId = (id) => {
+  accessoryDetails.value.manufacturer_id = id;
+}
+
+const updateCategoryId = (id) => {
+  accessoryDetails.value.category_id = id;
 }
 
 
@@ -200,27 +228,6 @@ watchEffect(() => {
 
 const selectedFilters = ref([]); // Создаем переменную для выбранных фильтров
 
-const groupedFilterOptions = computed(() => {
-  return combinedFilterOptions.value.reduce((acc, item) => {
-    const groupName = item.filter.name; // Название группы, например, "Доступность"
-
-    let group = acc.find(g => g.name === groupName);
-
-    if (!group) {
-      group = {name: groupName, options: []};
-      acc.push(group);
-    }
-
-    group.options.push(item);
-    return acc;
-  }, []);
-});
-
-const filterOptions = [
-  {label: 'Фильтр 1', value: 'filter1'},
-  {label: 'Фильтр 2', value: 'filter2'},
-  {label: 'Фильтр 3', value: 'filter3'}
-];
 
 const editorOptions = {
   theme: 'snow',
@@ -238,6 +245,7 @@ const editorOptions = {
 onMounted(async () => {
   await accessories();
   await fetchFilters();
+  await fetchManufacturer();
 });
 </script>
 
