@@ -1,9 +1,8 @@
 <template>
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border p-4 rounded-lg shadow-md space-y-4"
+  <h2 class="text-xl font-semibold">{{ accessoryDetails.title }}</h2>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border p-4 rounded-lg shadow-md"
        :key="accessoryDetails.id">
     <div>
-      <h2 class="text-xl font-semibold">{{ accessoryDetails.title }}</h2>
-
       <div class="space-y-2">
         <label class="block text-gray-700">Название</label>
         <input
@@ -15,10 +14,11 @@
       </div>
 
       <div class="space-y-2 col-span-2">
-        <label class="block text-gray-700">Описание</label>
-        <quill-editor
+        <label class="block text-gray-700">Описани</label>
+        <editor
+            api-key="odcydkl28d7x03wgsip6dxzkqtcx5olxt496s6x1nu87870j"
             v-model="accessoryDetails.description"
-            :options="editorOptions"
+            :init="editorOptions"
             class="w-full border border-gray-300 rounded-md"
         />
       </div>
@@ -43,11 +43,6 @@
         />
       </div>
 
-    </div>
-
-    <div
-        class=""
-    >
       <div class="space-y-2">
         <label class="block text-gray-700">URL изображения</label>
         <input
@@ -58,6 +53,10 @@
         />
       </div>
 
+    </div>
+
+    <div class="margin-top"
+    >
       <div class="space-y-2">
         <label class="block text-gray-700">Размеры</label>
         <input
@@ -105,26 +104,12 @@
       </div>
 
       <div class="space-y-2">
+        <label class="block text-gray-700">Category</label>
         <CategorySelect
             :selectedCategoryId="accessoryDetails.category_id"
             @update:selectedCategoryId="updateCategoryId"
         />
       </div>
-
-      <!--      <div class="space-y-2 col-span-2">-->
-      <!--        <label class="block text-gray-700">Фильтры</label>-->
-      <!--        <multiselect-->
-      <!--            v-model="accessoryDetails.filter_values"-->
-      <!--            :options="combinedFilterOptions"-->
-      <!--            :multiple="true"-->
-      <!--            :searchable="true"-->
-      <!--            placeholder="Выберите фильтры"-->
-      <!--            label="value"-->
-      <!--            :close-on-select="false"-->
-      <!--            :preserve-search="true"-->
-      <!--            class="w-full"-->
-      <!--        />-->
-      <!--      </div>-->
 
       <div class="space-y-2">
         <label class="block text-gray-700">Filter</label>
@@ -134,21 +119,36 @@
         />
       </div>
 
+      <div class="space-y-2">
+        <label class="block text-gray-700">Images</label>
+        <div v-if="accessoryDetails.images > 0">
+          <ImageSelector
+              :images="availableImages"
+              :initialImageIds="selectedImageIds"
+              @update:imageIds="handleImageSelection"
+          />
+        </div>
+        <div v-else class="text-gray-500 italic">
+          Нет доступных изображений
+        </div>
+      </div>
     </div>
+    <button @click="saveAccessory" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Сохранить</button>
   </div>
 </template>
 
 
 <script setup>
-import {onMounted, ref, watchEffect} from 'vue';
+import {onMounted, ref, toRaw, watchEffect} from 'vue';
 import {useRoute} from 'vue-router';
-import {quillEditor} from 'vue3-quill';
 import 'quill/dist/quill.snow.css';
 import 'vue-multiselect/dist/vue-multiselect.min.css';
 import axios from "axios";
 import Multiselect from '../components/Multiselect.vue'
 import ManufacturerSelect from '../components/ManufacturerSelect.vue'
 import CategorySelect from "@/components/CategorySelect.vue";
+import ImageSelector from "@/components/ImageSelector.vue";
+import Editor from '@tinymce/tinymce-vue'
 
 const route = useRoute();
 const accessoryId = ref(route.params.id);
@@ -157,12 +157,22 @@ const filters = ref([]);
 const manufacturers = ref([]);
 const combinedFilterOptions = ref();
 const allFilterValues = ref([]);
+const availableImages = ref([]);
+const selectedImageIds = ref([]);
+
+const editorRef = ref(null);
+
+// Reference to the editor container
 
 const accessories = async () => {
   try {
     const response = await axios.get(`https://aerobay.onrender.com/api/accessories/${accessoryId.value}`);
     accessoryDetails.value = response.data.accessory;
     console.log(accessoryDetails.value);
+    availableImages.value = response.data.images;
+    selectedImageIds.value = response.data.selectedImageIds || [];
+    accessoryDetails.value.description = accessoryDetails.value.description || '';
+    selectedFilters.value = accessoryDetails.value.filter_values || [];
     // if (!filterDetails.value.filter.filter_values || filterDetails.value.filter.filter_values.length === 0) {
     //   filterDetails.value.filter.filter_values = [{ value: '' }];
     // }
@@ -203,6 +213,49 @@ const updateCategoryId = (id) => {
   accessoryDetails.value.category_id = id;
 }
 
+const handleImageSelection = (newImageIds) => {
+  selectedImageIds.value = newImageIds;
+  console.log('Выбранные изображения:', selectedImageIds.value);
+};
+
+const onEditorChange = ({quill, html, text}) => {
+  console.log('Editor change detected:', html);
+  accessoryDetails.description = html;
+}
+
+const onTextChange = (content) => {
+  accessoryDetails.value.description = content;
+};
+
+const cleanHTML = (html) => {
+  const tempDiv = document.createElement("div");
+  tempDiv.innerHTML = html;
+  return tempDiv.textContent || tempDiv.innerText || "";
+};
+
+const saveAccessory = async () => {
+  try {
+
+    console.log(accessoryDetails.value.subcategories)
+    const updatedAccessory = {
+      ...accessoryDetails.value,
+      description: cleanHTML(accessoryDetails.value.description),
+      images: selectedImageIds.value || [],
+      filter_values: selectedFilters.value.map(f => f.id) || [],
+      manufacturer_id: accessoryDetails.value.manufacturer_id,
+      category_id: accessoryDetails.value.category_id,
+      subcategories: toRaw(accessoryDetails.value.subcategories.map(s => s.id)),
+    };
+    console.log(updatedAccessory);
+    await axios.put(`https://aerobay.onrender.com/api/accessories/${accessoryId.value}`, updatedAccessory);
+    alert('Аксессуар успешно сохранен');
+    // router.push('/accessories');
+  } catch (error) {
+    console.error('Ошибка при сохранении аксессуара:', error);
+    alert('Ошибка при сохранении аксессуара');
+  }
+};
+
 
 // const allFilterValues = computed(() => filters.value.map(f => f.value));
 
@@ -230,16 +283,11 @@ const selectedFilters = ref([]); // Создаем переменную для �
 
 
 const editorOptions = {
-  theme: 'snow',
-  modules: {
-    toolbar: [
-      [{header: [1, 2, false]}],
-      ['bold', 'italic', 'underline'],
-      ['link', 'image'],
-      [{list: 'ordered'}, {list: 'bullet'}],
-      ['clean']
-    ]
-  }
+  height: 400,
+  menubar: false,
+  plugins: ['link', 'image', 'table', 'lists'],
+  toolbar: 'undo redo | formatselect | bold italic | alignleft aligncenter alignright | bullist numlist outdent indent | removeformat',
+
 };
 
 onMounted(async () => {
@@ -267,6 +315,10 @@ onMounted(async () => {
 
 .ql-container {
   height: 250px;
+}
+
+.margin-top {
+  margin-top: 0;
 }
 </style>
   
