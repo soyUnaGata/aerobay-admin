@@ -1,6 +1,6 @@
 import colors from 'tailwindcss/colors.js';
 
-const aspectRatio = require('tailwindcss-aspect-ratio');
+import aspectRatio from 'tailwindcss-aspect-ratio';
 
 export default {
     content: [
