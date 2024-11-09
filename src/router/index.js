@@ -32,12 +32,17 @@ const router = createRouter({
             component: () => import('../views/AddView.vue')
         },
         {
-            path: '/accesories',
+            path: '/accessories',
             name: 'accessories',
             component: () => import('../views/AccessoriesView.vue')
         },
         {
-            path: '/accesories/edit/:id',
+            path: '/accessories/add',
+            name: 'accessories-add',
+            component: () => import('../views/AcAddView.vue')
+        },
+        {
+            path: '/accessories/edit/:id',
             name: 'accessories-edit',
             component: () => import('../views/AcEditView.vue')
         },
@@ -45,6 +50,16 @@ const router = createRouter({
             path: '/images',
             name: 'images',
             component: () => import('../views/ImageView.vue')
+        },
+        {
+            path: '/image/edit/:id',
+            name: 'image-edit',
+            component: () => import('../views/ImageEdit.vue')
+        },
+        {
+            path: '/image/add/',
+            name: 'image-add',
+            component: () => import('../views/ImageAdd.vue')
         },
     ]
 })
