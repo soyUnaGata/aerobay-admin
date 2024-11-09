@@ -43,7 +43,7 @@
               >
                 <RouterLink
                     class="bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded-full transition ease-in-out duration-150"
-                    :to="`/accesories/edit/${product.id}`">
+                    :to="`/accessories/edit/${product.id}`">
                   Edit
                 </RouterLink>
 
