@@ -1,139 +1,143 @@
 <template>
-  <h2 class="text-xl font-semibold">{{ accessoryDetails.title }}</h2>
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border p-4 rounded-lg shadow-md"
-       :key="accessoryDetails.id">
-    <div>
-      <div class="space-y-2">
-        <label class="block text-gray-700">Название</label>
-        <input
-            v-model="accessoryDetails.title"
-            class="input-field w-full"
-            type="text"
-            placeholder="Название аксессуара"
-        />
-      </div>
-
-      <div class="space-y-2 col-span-2">
-        <label class="block text-gray-700">Описани</label>
-        <editor
-            api-key="odcydkl28d7x03wgsip6dxzkqtcx5olxt496s6x1nu87870j"
-            v-model="accessoryDetails.description"
-            :init="editorOptions"
-            class="w-full border border-gray-300 rounded-md"
-        />
-      </div>
-
-      <div class="space-y-2">
-        <label class="block text-gray-700">Цена</label>
-        <input
-            v-model="accessoryDetails.price"
-            class="input-field w-full"
-            type="number"
-            placeholder="Цена"
-        />
-      </div>
-
-      <div class="space-y-2">
-        <label class="block text-gray-700">Скидка</label>
-        <input
-            v-model="accessoryDetails.discount"
-            class="input-field w-full"
-            type="number"
-            placeholder="Скидка"
-        />
-      </div>
-
-      <div class="space-y-2">
-        <label class="block text-gray-700">URL изображения</label>
-        <input
-            v-model="accessoryDetails.image_url"
-            class="input-field w-full"
-            type="text"
-            placeholder="URL изображения"
-        />
-      </div>
-
-    </div>
-
-    <div class="margin-top"
-    >
-      <div class="space-y-2">
-        <label class="block text-gray-700">Размеры</label>
-        <input
-            v-model="accessoryDetails.dimensions"
-            class="input-field w-full"
-            type="text"
-            placeholder="Размеры"
-        />
-      </div>
-
-      <div class="space-y-2">
-        <label class="block text-gray-700">Вес</label>
-        <input
-            v-model="accessoryDetails.weight"
-            class="input-field w-full"
-            type="text"
-            placeholder="Вес"
-        />
-      </div>
-
-      <div class="space-y-2">
-        <label class="block text-gray-700">Тип</label>
-        <input
-            v-model="accessoryDetails.type"
-            class="input-field w-full"
-            type="text"
-            placeholder="Тип"
-        />
-      </div>
-
-      <div class="space-y-2">
-        <label class="block text-gray-700">Количество</label>
-        <input
-            v-model="accessoryDetails.amount"
-            class="input-field w-full"
-            type="number"
-            placeholder="Количество"
-        />
-      </div>
-
-      <div class="space-y-2">
-        <label class="block text-gray-700">Manufacturer</label>
-        <ManufacturerSelect :selectedManufacturerId="accessoryDetails.manufacturer_id"
-                            @update:selectedManufacturerId="updateManufacturerId"/>
-      </div>
-
-      <div class="space-y-2">
-        <label class="block text-gray-700">Category</label>
-        <CategorySelect
-            :selectedCategoryId="accessoryDetails.category_id"
-            @update:selectedCategoryId="updateCategoryId"
-        />
-      </div>
-
-      <div class="space-y-2">
-        <label class="block text-gray-700">Filter</label>
-        <Multiselect
-            :options="filters"
-            v-model="selectedFilters"
-        />
-      </div>
-
-      <div class="space-y-2">
-        <label class="block text-gray-700">Images</label>
-        <div v-if="accessoryDetails.images > 0">
-          <ImageSelector
-              :images="availableImages"
-              :initialImageIds="selectedImageIds"
-              @update:imageIds="handleImageSelection"
+  <nav class="fixed left-0 top-0 h-screen w-64 bg-gray-800 text-white">
+    <NavBar/>
+  </nav>
+  <div class="ml-64 flex-1 p-4 w-full">
+    <Loader v-if="loading"/>
+    <h2 class="text-xl font-semibold">{{ accessoryDetails.title }}</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border p-4 rounded-lg shadow-md"
+         :key="accessoryDetails.id">
+      <div class="flex flex-col gap-2.5">
+        <div class="space-y-2">
+          <label class="block text-gray-700">Title</label>
+          <input
+              v-model="accessoryDetails.title"
+              class="input-field w-full"
+              type="text"
+              placeholder="Name of accessory"
           />
         </div>
-        <div v-else class="text-gray-500 italic">
-          Нет доступных изображений
+
+        <div class="space-y-2 col-span-2">
+          <label class="block text-gray-700">Description</label>
+          <editor
+              api-key="odcydkl28d7x03wgsip6dxzkqtcx5olxt496s6x1nu87870j"
+              v-model="accessoryDetails.description"
+              :init="editorOptions"
+              class="w-full border border-gray-300 rounded-md"
+          />
+        </div>
+
+        <div class="space-y-2">
+          <label class="block text-gray-700">Price</label>
+          <input
+              v-model="accessoryDetails.price"
+              class="input-field w-full"
+              type="number"
+              placeholder="Price"
+          />
+        </div>
+
+        <div class="space-y-2">
+          <label class="block text-gray-700">Discount</label>
+          <input
+              v-model="accessoryDetails.discount"
+              class="input-field w-full"
+              type="number"
+              placeholder="Discount"
+          />
+        </div>
+
+        <div class="space-y-2">
+          <label class="block text-gray-700">Image url</label>
+          <input
+              v-model="accessoryDetails.image_url"
+              class="input-field w-full"
+              type="text"
+              placeholder="Image url"
+          />
+        </div>
+
+      </div>
+
+      <div class="margin-top flex flex-col gap-2.5">
+        <div class="space-y-2">
+          <label class="block text-gray-700">Dimensions</label>
+          <input
+              v-model="accessoryDetails.dimensions"
+              class="input-field w-full"
+              type="text"
+              placeholder="Dimensions"
+          />
+        </div>
+
+        <div class="space-y-2">
+          <label class="block text-gray-700">Weight</label>
+          <input
+              v-model="accessoryDetails.weight"
+              class="input-field w-full"
+              type="text"
+              placeholder="Weight"
+          />
+        </div>
+
+        <div class="space-y-2">
+          <label class="block text-gray-700">Type</label>
+          <input
+              v-model="accessoryDetails.type"
+              class="input-field w-full"
+              type="text"
+              placeholder="Type"
+          />
+        </div>
+
+        <div class="space-y-2">
+          <label class="block text-gray-700">Amount</label>
+          <input
+              v-model="accessoryDetails.amount"
+              class="input-field w-full"
+              type="number"
+              placeholder="Amount"
+          />
+        </div>
+
+        <div class="space-y-2">
+          <label class="block text-gray-700">Manufacturer</label>
+          <ManufacturerSelect :selectedManufacturerId="accessoryDetails.manufacturer_id"
+                              @update:selectedManufacturerId="updateManufacturerId"/>
+        </div>
+
+        <div class="space-y-2">
+          <label class="block text-gray-700">Category</label>
+          <CategorySelect
+              :selectedCategoryId="accessoryDetails.category_id"
+              @update:selectedCategoryId="updateCategoryId"
+          />
+        </div>
+
+        <div class="space-y-2">
+          <label class="block text-gray-700">Filter</label>
+          <Multiselect
+              :options="filters"
+              v-model="selectedFilters"
+          />
+        </div>
+
+        <div class="space-y-2">
+          <label class="block text-gray-700">Images</label>
+          <div>
+            <ImageSelector
+                :images="availableImages"
+                :initialImageIds="selectedImageIds"
+                @update:imageIds="handleImageSelection"
+            />
+          </div>
         </div>
       </div>
+      <button @click="saveAccessory" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Save
+      </button>
+      <RouterLink to="/accessories">Back</RouterLink>
     </div>
-    <button @click="saveAccessory" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Сохранить</button>
   </div>
 </template>
 
@@ -149,6 +153,8 @@ import ManufacturerSelect from '../components/ManufacturerSelect.vue'
 import CategorySelect from "@/components/CategorySelect.vue";
 import ImageSelector from "@/components/ImageSelector.vue";
 import Editor from '@tinymce/tinymce-vue'
+import Loader from "@/components/Loader.vue";
+import NavBar from "@/components/NavBar.vue";
 
 const route = useRoute();
 const accessoryId = ref(route.params.id);
@@ -159,6 +165,7 @@ const combinedFilterOptions = ref();
 const allFilterValues = ref([]);
 const availableImages = ref([]);
 const selectedImageIds = ref([]);
+const loading = ref(true);
 
 const editorRef = ref(null);
 
@@ -168,9 +175,7 @@ const accessories = async () => {
   try {
     const response = await axios.get(`https://aerobay.onrender.com/api/accessories/${accessoryId.value}`);
     accessoryDetails.value = response.data.accessory;
-    console.log(accessoryDetails.value);
-    availableImages.value = response.data.images;
-    selectedImageIds.value = response.data.selectedImageIds || [];
+    selectedImageIds.value = accessoryDetails.value.images.map(i => i.id) || [];
     accessoryDetails.value.description = accessoryDetails.value.description || '';
     selectedFilters.value = accessoryDetails.value.filter_values || [];
     // if (!filterDetails.value.filter.filter_values || filterDetails.value.filter.filter_values.length === 0) {
@@ -178,6 +183,8 @@ const accessories = async () => {
     // }
   } catch (error) {
     console.error('Ошибка при загрузке группы:', error);
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -190,8 +197,6 @@ const fetchFilters = async () => {
 
   } catch (error) {
     console.error('Ошибка при загрузке подкатегорий:', error);
-  } finally {
-    // loading.value = false;
   }
 };
 
@@ -256,6 +261,15 @@ const saveAccessory = async () => {
   }
 };
 
+const images = async () => {
+  try {
+    const response = await axios.get(`https://aerobay.onrender.com/api/images`);
+    availableImages.value = response.data.data;
+    console.log(availableImages.value);
+  } catch (error) {
+    console.log(error);
+  }
+}
 
 // const allFilterValues = computed(() => filters.value.map(f => f.value));
 
@@ -294,6 +308,7 @@ onMounted(async () => {
   await accessories();
   await fetchFilters();
   await fetchManufacturer();
+  await images();
 });
 </script>
 
