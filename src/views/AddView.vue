@@ -123,6 +123,7 @@ import {useRouter} from 'vue-router';
 import axios from 'axios';
 import NavBar from "@/components/NavBar.vue";
 import Loader from "@/components/Loader.vue";
+import FilterService from "@/services/filter-service.js";
 
 const route = useRouter();
 const filter = ref({
@@ -162,11 +163,7 @@ const fetchGroups = async () => {
 const saveFilter = async () => {
   console.log('Отправка формы');
   try {
-    const filterResponse = await axios.post(`https://aerobay.onrender.com/api/filter`, {
-      "name": filter.value.name,
-      "category_id": filter.value.category_id,
-      "group_id": filter.value.group_id
-    });
+    const filterResponse = await FilterService.postFilter(filter.value.name, filter.value.category_id, filter.value.group_id);
 
     const filterId = filterResponse.data.data.id;
 
