@@ -61,6 +61,16 @@ const router = createRouter({
             name: 'image-add',
             component: () => import('../views/ImageAdd.vue')
         },
+        {
+            path: '/drones',
+            name: 'drones',
+            component: () => import('../views/DronesView.vue')
+        },
+        {
+            path: '/drones/edit/:id',
+            name: 'drones-edit',
+            component: () => import('../views/DronesEditView.vue')
+        },
     ]
 })
 

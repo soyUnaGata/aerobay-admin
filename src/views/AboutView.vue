@@ -56,6 +56,7 @@ import {onMounted, ref, watch,} from "vue";
 import {Popover, PopoverButton, PopoverPanel} from '@headlessui/vue'
 import {ChevronDownIcon, PhoneIcon, PlayCircleIcon} from '@heroicons/vue/20/solid'
 import NavBar from "@/components/NavBar.vue";
+import FilterService from "@/services/filter-service.js";
 
 
 const filters = ref();
@@ -66,10 +67,7 @@ const loading = ref(true);
 
 const fetchFilters = async () => {
   try {
-    const response = await axios.get('https://aerobay.onrender.com/api/filter');
-    console.log('-')
-    filters.value = await response.data;
-
+    filters.value = await FilterService.getAllFilters();
   } catch (error) {
     console.error('Ошибка при загрузке подкатегорий:', error);
   } finally {
