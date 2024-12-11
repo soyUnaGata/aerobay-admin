@@ -50,7 +50,6 @@
 </template>
 
 <script setup>
-import axios from "axios";
 import Loader from '@/components/Loader.vue';
 import {onMounted, ref, watch,} from "vue";
 import {Popover, PopoverButton, PopoverPanel} from '@headlessui/vue'
@@ -78,7 +77,7 @@ const fetchFilters = async () => {
 
 const removeFilter = async (id, index) => {
   try {
-    await axios.delete(`https://aerobay.onrender.com/api/filter/${id}`);
+    await FilterService.removeFilter(id);
     filters.value.splice(index, 1);
     console.log("Фильтр успешно удален");
   } catch (error) {

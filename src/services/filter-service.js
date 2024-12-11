@@ -6,6 +6,10 @@ class FilterService {
             .then((response) => response.data)
             .catch((err) => null);
     }
+
+    async removeFilter(id) {
+        return await api.delete(`filter/${id}`);
+    }
 }
 
 export default new FilterService();
