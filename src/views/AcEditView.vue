@@ -156,6 +156,7 @@ import Editor from '@tinymce/tinymce-vue'
 import Loader from "@/components/Loader.vue";
 import NavBar from "@/components/NavBar.vue";
 import FilterValueService from "@/services/filter-value-service.js";
+import ManufacturesService from "@/services/manufactures-service.js";
 
 const route = useRoute();
 const accessoryId = ref(route.params.id);
@@ -163,7 +164,6 @@ const accessoryDetails = ref({});
 const filters = ref([]);
 const manufacturers = ref([]);
 const combinedFilterOptions = ref();
-const allFilterValues = ref([]);
 const availableImages = ref([]);
 const selectedImageIds = ref([]);
 const loading = ref(true);
@@ -179,9 +179,7 @@ const accessories = async () => {
     selectedImageIds.value = accessoryDetails.value.images.map(i => i.id) || [];
     accessoryDetails.value.description = accessoryDetails.value.description || '';
     selectedFilters.value = accessoryDetails.value.filter_values || [];
-    // if (!filterDetails.value.filter.filter_values || filterDetails.value.filter.filter_values.length === 0) {
-    //   filterDetails.value.filter.filter_values = [{ value: '' }];
-    // }
+
   } catch (error) {
     console.error('Ошибка при загрузке группы:', error);
   } finally {
@@ -202,7 +200,7 @@ const fetchFilters = async () => {
 const fetchManufacturer = async () => {
   try {
     const response = await axios.get(`https://aerobay.onrender.com/api/manufactures`);
-    manufacturers.value = response.data.data;
+    manufacturers.value = await ManufacturesService.getAllManufactures();
     console.log(manufacturers.value)
   } catch (error) {
     console.log(error);
