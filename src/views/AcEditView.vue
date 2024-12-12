@@ -155,6 +155,7 @@ import ImageSelector from "@/components/ImageSelector.vue";
 import Editor from '@tinymce/tinymce-vue'
 import Loader from "@/components/Loader.vue";
 import NavBar from "@/components/NavBar.vue";
+import FilterValueService from "@/services/filter-value-service.js";
 
 const route = useRoute();
 const accessoryId = ref(route.params.id);
@@ -190,10 +191,8 @@ const accessories = async () => {
 
 const fetchFilters = async () => {
   try {
-    const response = await axios.get('https://aerobay.onrender.com/api/filter_values');
     console.log('-')
-    filters.value = await response.data || [];
-    allFilterValues.value = filters.value.map(f => f.value);
+    filters.value = await FilterValueService.getAllValues();
 
   } catch (error) {
     console.error('Ошибка при загрузке подкатегорий:', error);
