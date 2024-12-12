@@ -54,7 +54,7 @@ export default {
 
     const groupedOptions = computed(() => {
       return props.options.reduce((groups, option) => {
-        const groupName = option.filter.name;
+        const groupName = option.filter?.name || 'No group found';
         if (!groups[groupName]) {
           groups[groupName] = {name: groupName, options: []};
         }
