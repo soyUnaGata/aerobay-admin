@@ -124,6 +124,7 @@ import axios from 'axios';
 import NavBar from "@/components/NavBar.vue";
 import Loader from "@/components/Loader.vue";
 import FilterService from "@/services/filter-service.js";
+import FilterValueService from "@/services/filter-value-service.js";
 
 const route = useRouter();
 const filter = ref({
@@ -168,10 +169,7 @@ const saveFilter = async () => {
     const filterId = filterResponse.data.data.id;
 
     for (const value of filter.value.filter.filter_values) {
-      await axios.post('https://aerobay.onrender.com/api/filter_values', {
-        "value": value.value,
-        "filter_id": filterId
-      });
+      await FilterValueService.postFilter(value.value, filterId);
     }
     showNotification();
     route.push({name: 'about'});
