@@ -13,7 +13,7 @@
       </svg>
     </div>
 
-    <div v-show="isOpen"
+    <div v-if="isOpen"
          class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
       <ul>
         <li
