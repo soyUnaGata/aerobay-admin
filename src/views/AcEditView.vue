@@ -157,6 +157,7 @@ import Loader from "@/components/Loader.vue";
 import NavBar from "@/components/NavBar.vue";
 import FilterValueService from "@/services/filter-value-service.js";
 import ManufacturesService from "@/services/manufactures-service.js";
+import AccessoryService from "@/services/accessory-service.js";
 
 const route = useRoute();
 const accessoryId = ref(route.params.id);
@@ -170,16 +171,12 @@ const loading = ref(true);
 
 const editorRef = ref(null);
 
-// Reference to the editor container
-
 const accessories = async () => {
   try {
-    const response = await axios.get(`https://aerobay.onrender.com/api/accessories/${accessoryId.value}`);
-    accessoryDetails.value = response.data.accessory;
+    accessoryDetails.value = await AccessoryService.getAccessory(accessoryId.value);
     selectedImageIds.value = accessoryDetails.value.images.map(i => i.id) || [];
     accessoryDetails.value.description = accessoryDetails.value.description || '';
     selectedFilters.value = accessoryDetails.value.filter_values || [];
-
   } catch (error) {
     console.error('Ошибка при загрузке группы:', error);
   } finally {
@@ -189,9 +186,7 @@ const accessories = async () => {
 
 const fetchFilters = async () => {
   try {
-    console.log('-')
     filters.value = await FilterValueService.getAllValues();
-
   } catch (error) {
     console.error('Ошибка при загрузке подкатегорий:', error);
   }
@@ -200,7 +195,6 @@ const fetchFilters = async () => {
 const fetchManufacturer = async () => {
   try {
     manufacturers.value = await ManufacturesService.getAllManufactures();
-    console.log(manufacturers.value)
   } catch (error) {
     console.log(error);
   }
@@ -219,14 +213,6 @@ const handleImageSelection = (newImageIds) => {
   console.log('Выбранные изображения:', selectedImageIds.value);
 };
 
-const onEditorChange = ({quill, html, text}) => {
-  console.log('Editor change detected:', html);
-  accessoryDetails.description = html;
-}
-
-const onTextChange = (content) => {
-  accessoryDetails.value.description = content;
-};
 
 const cleanHTML = (html) => {
   const tempDiv = document.createElement("div");
@@ -236,8 +222,6 @@ const cleanHTML = (html) => {
 
 const saveAccessory = async () => {
   try {
-
-    console.log(accessoryDetails.value.subcategories)
     const updatedAccessory = {
       ...accessoryDetails.value,
       description: cleanHTML(accessoryDetails.value.description),
@@ -248,7 +232,7 @@ const saveAccessory = async () => {
       subcategories: toRaw(accessoryDetails.value.subcategories.map(s => s.id)),
     };
     console.log(updatedAccessory);
-    await axios.put(`https://aerobay.onrender.com/api/accessories/${accessoryId.value}`, updatedAccessory);
+    await AccessoryService.postAccessory(accessoryId.value, updatedAccessory);
     alert('Аксессуар успешно сохранен');
     // router.push('/accessories');
   } catch (error) {
@@ -267,7 +251,6 @@ const images = async () => {
   }
 }
 
-// const allFilterValues = computed(() => filters.value.map(f => f.value));
 
 watchEffect(() => {
   if (accessoryDetails.value.filter_values?.length > 0) {

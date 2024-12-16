@@ -84,10 +84,10 @@
 </template>
 
 <script setup>
-import axios from "axios";
 import {computed, onMounted, ref} from 'vue';
 import Loader from '@/components/Loader.vue';
 import NavBar from "@/components/NavBar.vue";
+import AccessoryService from '@/services/accessory-service.js'
 
 const searchTerm = ref('');
 const currentPage = ref(1);
@@ -98,8 +98,7 @@ const products = ref([]);
 
 const fetchAccessories = async () => {
   try {
-    const response = await axios.get('https://aerobay.onrender.com/api/accessories');
-    products.value = await response.data.accessories;
+    products.value = await AccessoryService.getAllAccessories();
   } catch (error) {
     console.error('Ошибка при загрузке подкатегорий:', error);
   } finally {
@@ -132,10 +131,10 @@ function editProduct(id) {
   alert(`Редактировать товар: ${id}`);
 }
 
-function deleteProduct(productId) {
-  products.value = products.value.filter((product) => product.id !== productId);
+async function deleteProduct(productId) {
   try {
-    axios.delete(`https://aerobay.onrender.com/api/accessories/${productId}`)
+    products.value = products.value.filter((product) => product.id !== productId);
+    await AccessoryService.removeAccessory(productId);
   } catch (error) {
     console.log(error);
   }
