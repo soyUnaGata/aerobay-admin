@@ -1,8 +1,8 @@
 <script setup>
 import {ref} from "vue";
-import axios from "axios";
 import router from "@/router/index.js";
 import NavBar from "@/components/NavBar.vue";
+import ImageService from "@/services/image-service.js";
 
 const images = ref([
   {
@@ -25,10 +25,7 @@ const imageName = ref('');
 const handleSubmit = async () => {
   try {
     for (const value of images.value) {
-      await axios.post('https://aerobay.onrender.com/api/images', {
-        name: imageName.value,
-        url: value.url,
-      });
+      await ImageService.postImages(imageName.value, value.url);
     }
     router.push('/images');
     console.log(images.value);

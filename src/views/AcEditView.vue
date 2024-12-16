@@ -232,7 +232,7 @@ const saveAccessory = async () => {
       subcategories: toRaw(accessoryDetails.value.subcategories.map(s => s.id)),
     };
     console.log(updatedAccessory);
-    await AccessoryService.postAccessory(accessoryId.value, updatedAccessory);
+    await AccessoryService.editAccessory(accessoryId.value, updatedAccessory);
     alert('Аксессуар успешно сохранен');
     // router.push('/accessories');
   } catch (error) {
