@@ -8,9 +8,7 @@
       <Loader v-if="loading"/>
       <div class="flex" name="fade" v-for="(filter, index) in filters" :key="filter.id" :id="filter.id"
            v-show="!loading">
-        <div>
-          <a :href="`/filter/add`">Add</a>
-        </div>
+        <RouterLink :to="{name: 'filter-add'}">Add</RouterLink>
         <Popover :id="filter.id"
                  class="relative shadow-lg ring-1 ring-gray-900/5 w-100 w-screen flex-auto overflow-hidden rounded-3xl bg-white text-sm leading-6 shadow-lg ring-1">
           <PopoverButton
