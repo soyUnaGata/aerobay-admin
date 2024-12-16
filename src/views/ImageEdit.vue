@@ -45,7 +45,7 @@ onMounted(async () => {
       <NavBar/>
     </nav>
     <div class="ml-64 flex-1 p-4">
-      <RouterLink to="/images">Back</RouterLink>
+      <RouterLink :to="{ name: 'images'}">Back</RouterLink>
       <div class="flex items-centre flex-col gap-2 w-full ">
         <label for="filterName" class="block text-sm font-medium leading-6 text-gray-900 mb-2">
           Image
