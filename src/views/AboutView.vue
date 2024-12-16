@@ -4,11 +4,13 @@
       <NavBar/>
     </nav>
     <div class="ml-64 flex-1 p-4">
+
       <Loader v-if="loading"/>
-      <div>
-        <a :href="`/filter/add`">Add</a>
-      </div>
-      <div class="flex" name="fade" v-for="(filter, index) in filters" :key="filter.id" :id="filter.id">
+      <div class="flex" name="fade" v-for="(filter, index) in filters" :key="filter.id" :id="filter.id"
+           v-show="!loading">
+        <div>
+          <a :href="`/filter/add`">Add</a>
+        </div>
         <Popover :id="filter.id"
                  class="relative shadow-lg ring-1 ring-gray-900/5 w-100 w-screen flex-auto overflow-hidden rounded-3xl bg-white text-sm leading-6 shadow-lg ring-1">
           <PopoverButton
