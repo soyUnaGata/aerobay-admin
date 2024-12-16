@@ -5,7 +5,8 @@
     </nav>
     <div class="ml-64 flex-1 p-4 w-full">
       <Loader v-if="loading"/>
-      <div class="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8 group-hover:opacity-75">
+      <div class="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8 group-hover:opacity-75"
+           v-show="!loading">
         <h2 class="sr-only">Images</h2>
         <div>
           <button type="button" @click="addImage()">Add</button>
