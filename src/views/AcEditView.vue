@@ -199,7 +199,6 @@ const fetchFilters = async () => {
 
 const fetchManufacturer = async () => {
   try {
-    const response = await axios.get(`https://aerobay.onrender.com/api/manufactures`);
     manufacturers.value = await ManufacturesService.getAllManufactures();
     console.log(manufacturers.value)
   } catch (error) {

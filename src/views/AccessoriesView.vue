@@ -5,7 +5,7 @@
   <div class="ml-64 flex-1 p-4 w-full">
     <RouterLink to="/accessories/add">Add</RouterLink>
     <Loader v-if="loading"/>
-    <div class="p-4">
+    <div class="p-4" v-show="!loading">
       <div class="mb-4">
         <input
             v-model="searchTerm"
