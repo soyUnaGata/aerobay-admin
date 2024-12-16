@@ -61,8 +61,6 @@ import FilterService from "@/services/filter-service.js";
 
 
 const filters = ref();
-const filterId = ref(null);
-const filter = ref(null);
 const loading = ref(true);
 
 
