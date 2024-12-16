@@ -19,7 +19,7 @@
             <span>{{ group }}</span>
             <ChevronDownIcon class="h-5 w-5" aria-hidden="true"/>
           </PopoverButton>
-          <RouterLink :to="`/filter/edit/${filter.id}`">Edit</RouterLink>
+          <RouterLink :to="{name: 'filter-edit', params: { id: filter.id }}">Edit</RouterLink>
           <button class="text-red-700" @click="removeFilter(filter.id, index)">Delete</button>
 
           <transition enter-active-class="transition ease-out duration-200" enter-from-class="opacity-0 translate-y-1"
