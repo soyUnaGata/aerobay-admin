@@ -196,7 +196,7 @@ let showNotification = () => {
 
 
 onMounted(async () => {
-  fetchCategories();
-  fetchGroups();
+  await fetchCategories();
+  await fetchGroups();
 });
 </script>

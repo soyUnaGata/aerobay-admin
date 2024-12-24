@@ -126,8 +126,6 @@ const filterDetails = ref({
     filter_values: []
   }
 });
-const filterName = ref(null)
-const enteredValue = ref();
 let isVisible = ref(false);
 const deleteIds = ref([]);
 const categories = ref([]);
@@ -135,9 +133,7 @@ const groups = ref([]);
 
 const fetchFilterDetails = async () => {
   try {
-    const response = await axios.get(`https://aerobay.onrender.com/api/filter/${filterId.value}`);
-
-    filterDetails.value = response.data;
+    filterDetails.value = await FilterService.getFilter(filterId.value);
     if (!filterDetails.value.filter.filter_values || filterDetails.value.filter.filter_values.length === 0) {
       filterDetails.value.filter.filter_values = [{value: ''}];
     }

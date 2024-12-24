@@ -147,7 +147,6 @@ import {onMounted, ref, toRaw, watchEffect} from 'vue';
 import {useRoute} from 'vue-router';
 import 'quill/dist/quill.snow.css';
 import 'vue-multiselect/dist/vue-multiselect.min.css';
-import axios from "axios";
 import Multiselect from '../components/Multiselect.vue'
 import ManufacturerSelect from '../components/ManufacturerSelect.vue'
 import CategorySelect from "@/components/CategorySelect.vue";
@@ -158,6 +157,7 @@ import NavBar from "@/components/NavBar.vue";
 import FilterValueService from "@/services/filter-value-service.js";
 import ManufacturesService from "@/services/manufactures-service.js";
 import AccessoryService from "@/services/accessory-service.js";
+import ImageService from "@/services/image-service.js";
 
 const route = useRoute();
 const accessoryId = ref(route.params.id);
@@ -243,8 +243,7 @@ const saveAccessory = async () => {
 
 const images = async () => {
   try {
-    const response = await axios.get(`https://aerobay.onrender.com/api/images`);
-    availableImages.value = response.data.data;
+    availableImages.value = await ImageService.getAllImages();
     console.log(availableImages.value);
   } catch (error) {
     console.log(error);

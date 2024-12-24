@@ -155,6 +155,7 @@ import Editor from '@tinymce/tinymce-vue';
 import Loader from "@/components/Loader.vue";
 import NavBar from "@/components/NavBar.vue";
 import FilterValueService from "@/services/filter-value-service.js";
+import ImageService from "@/services/image-service.js";
 
 const accessoryDetails = ref({
   title: '',
@@ -215,8 +216,7 @@ const addAccessory = async () => {
 
 const images = async () => {
   try {
-    const response = await axios.get(`https://aerobay.onrender.com/api/images`);
-    availableImages.value = response.data.data;
+    availableImages.value = await ImageService.getAllImages();
   } catch (error) {
     console.log(error);
   }
