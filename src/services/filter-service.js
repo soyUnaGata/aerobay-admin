@@ -7,6 +7,12 @@ class FilterService {
             .catch((err) => null);
     }
 
+    async getFilter(id) {
+        return await api.get(`filter/${id}`)
+            .then(res => res.data)
+            .catch((err) => null);
+    }
+
     async postFilter(name, category, group) {
         return await api.post(`filter`, {
             "name": name,
