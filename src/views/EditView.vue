@@ -1,6 +1,6 @@
 <template>
-    <RouterLink to="/about">Back</RouterLink>
-   <div class="flex items-baseline gap-12">
+  <RouterLink to="/about">Back</RouterLink>
+  <div class="flex items-baseline gap-12">
     <div class="">
       <form v-if="filterDetails && filterDetails.filter" @submit.prevent="handleSubmit">
         <label for="filterName" class="block text-sm font-medium leading-6 text-gray-900 mb-2">
@@ -18,7 +18,8 @@
             Filter values
           </label>
 
-          <div v-for="(value, index) in filterDetails.filter.filter_values" :key="index" class="relative flex gap-2.5 mt-2">
+          <div v-for="(value, index) in filterDetails.filter.filter_values" :key="index"
+               class="relative flex gap-2.5 mt-2">
             <input type="text"
                    v-model="value.value"
                    class="block rounded-md border-0 py-1.5 pl-7 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300
@@ -60,24 +61,24 @@
           </option>
         </select>
         <div v-else class="text-sm text-red-600 mt-2">
-            There is no categories yet.
+          There is no categories yet.
         </div>
 
         <label for="group" class="block text-sm font-medium leading-6 text-gray-900 mt-4 mb-2">
           Group
         </label>
-          <select v-if="groups.data"
-          id="group"
-                  v-model="filterDetails.filter.group_id"
-                  class="block w-full border-0 rounded-md border-gray-300 text-gray-900 ring-1 
+        <select v-if="groups.data"
+                id="group"
+                v-model="filterDetails.filter.group_id"
+                class="block w-full border-0 rounded-md border-gray-300 text-gray-900 ring-1
                 shadow-sm ring-inset ring-gray-300 placeholder:text-gray-400
                 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm
                 py-1.5 pl-7 pr-20">
-            <option value="" disabled selected>Choose group</option>
-            <option v-for="group in groups.data" :key="group.id" :value="group.id">
-              {{ group.name }}
-            </option>
-          </select>
+          <option value="" disabled selected>Choose group</option>
+          <option v-for="group in groups.data" :key="group.id" :value="group.id">
+            {{ group.name }}
+          </option>
+        </select>
         <div v-else class="text-sm text-red-600 mt-2">
           There is no groups yet.
         </div>
@@ -86,19 +87,21 @@
     </div>
   </div>
 
-<transition 
-    enter-active-class="transition-opacity duration-500" 
-    leave-active-class="transition-opacity duration-500"
-    enter-from-class="opacity-0" 
-    enter-to-class="opacity-100" 
-    leave-from-class="opacity-100" 
-    leave-to-class="opacity-0">
-    <div v-show="isVisible" class="fixed top-5 right-5 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded shadow-md transition-transform duration-500 ease-in-out transform"
+  <transition
+      enter-active-class="transition-opacity duration-500"
+      leave-active-class="transition-opacity duration-500"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0">
+    <div v-show="isVisible"
+         class="fixed top-5 right-5 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded shadow-md transition-transform duration-500 ease-in-out transform"
          role="alert"
          :class="{'opacity-0 scale-95': !isVisible, 'opacity-100 scale-100': isVisible}">
       <div class="flex items-center">
         <svg class="w-6 h-6 fill-current text-green-500 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-          <path d="M9 11.414L5.707 8.121a1 1 0 0 0-1.414 1.415l4 4a1 1 0 0 0 1.414 0l8-8a1 1 0 0 0-1.414-1.414L9 11.414z"/>
+          <path
+              d="M9 11.414L5.707 8.121a1 1 0 0 0-1.414 1.415l4 4a1 1 0 0 0 1.414 0l8-8a1 1 0 0 0-1.414-1.414L9 11.414z"/>
         </svg>
         <span>Saved successfully!</span>
       </div>
@@ -107,12 +110,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import {onMounted, ref, watch} from 'vue';
+import {useRoute} from 'vue-router';
 import axios from 'axios';
+import FilterValueService from "@/services/filter-value-service.js";
+import FilterService from "@/services/filter-service.js";
 
 const route = useRoute();
-const filterId = ref(route.params.id); 
+const filterId = ref(route.params.id);
 const filterDetails = ref({
   filter: {
     name: '',
@@ -134,7 +139,7 @@ const fetchFilterDetails = async () => {
 
     filterDetails.value = response.data;
     if (!filterDetails.value.filter.filter_values || filterDetails.value.filter.filter_values.length === 0) {
-      filterDetails.value.filter.filter_values = [{ value: '' }];
+      filterDetails.value.filter.filter_values = [{value: ''}];
     }
   } catch (error) {
     console.error('Ошибка при загрузке группы:', error);
@@ -161,7 +166,7 @@ const fetchGroups = async () => {
 };
 
 const addNewValue = () => {
-    filterDetails.value.filter.filter_values.push({ value: '' });
+  filterDetails.value.filter.filter_values.push({value: ''});
 };
 
 const removeValue = (index, id) => {
@@ -180,32 +185,22 @@ let showNotification = () => {
 
 const handleSubmit = async () => {
   try {
-    await axios.put(`https://aerobay.onrender.com/api/filter/${filterId.value}`, {
-      "name": filterDetails.value.filter.name,
-      "category_id": filterDetails.value.filter.category_id,
-      "group_id": filterDetails.value.filter.group_id
-    });
+    await FilterService.updateFilter(filterId.value, filterDetails.value.filter.name, filterDetails.value.filter.category_id, filterDetails.value.filter.group_id);
 
     for (const filterValue of filterDetails.value.filter.filter_values) {
-        if (filterValue.value.trim() === '') {
-        continue; 
+      if (filterValue.value.trim() === '') {
+        continue;
       }
 
       if (filterValue.id) {
-        await axios.put(`https://aerobay.onrender.com/api/filter_values/${filterValue.id}`, {
-          "value": filterValue.value,
-          "filter_id": filterId.value
-        });
+        await FilterValueService.updateFilter(filterValue.id, filterValue.value, filterId.value);
       } else {
-        await axios.post(`https://aerobay.onrender.com/api/filter_values`, {
-          "value": filterValue.value,
-          "filter_id": filterId.value
-        });
+        await FilterValueService.postFilter(filterValue.value, filterId.value);
       }
     }
 
     for (let id of deleteIds.value) {
-      await axios.delete(`https://aerobay.onrender.com/api/filter_values/${id}`);
+      await FilterValueService.removeFilter(id);
     }
 
     deleteIds.value = [];
@@ -218,18 +213,18 @@ const handleSubmit = async () => {
 
 
 watch(
-  () => route.params.id,
-  async (newId) => {
-    if (newId) {
-      filterId.value = newId;
-      await fetchFilterDetails(); 
-    }
-  },
+    () => route.params.id,
+    async (newId) => {
+      if (newId) {
+        filterId.value = newId;
+        await fetchFilterDetails();
+      }
+    },
 );
 
 onMounted(async () => {
   await fetchFilterDetails();
-  fetchCategories();
-  fetchGroups();
+  await fetchCategories();
+  await fetchGroups();
 });
 </script>
