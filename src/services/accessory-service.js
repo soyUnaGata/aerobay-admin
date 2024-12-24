@@ -7,7 +7,7 @@ class AccessoryService {
             .catch((err) => null);
     }
 
-    async editAccessory(id, accessory) {
+    async updateAccessory(id, accessory) {
         return await api.post(`accessories/${id}`, accessory);
     }
 
