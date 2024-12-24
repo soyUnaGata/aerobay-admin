@@ -15,6 +15,14 @@ class FilterService {
         });
     }
 
+    async updateFilter(id, name, category, group) {
+        return await api.post(`filter/${id}`, {
+            "name": name,
+            "category_id": category,
+            "group_id": group
+        });
+    }
+
     async removeFilter(id) {
         return await api.delete(`filter/${id}`);
     }

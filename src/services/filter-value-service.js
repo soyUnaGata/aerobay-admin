@@ -7,14 +7,21 @@ class FilterValueService {
             .catch((err) => null);
     }
 
-    async postFilter(value, id) {
-        return await api.post(`filter_values`, {
+    async updateFilter(id, value, filterId) {
+        return await api.post(`filter_values/${id}`, {
             "value": value,
-            "filter_id": id
+            "filter_id": filterId
         })
     }
 
-    async removeValue(id) {
+    async postFilter(value, filterId) {
+        return await api.post(`filter_values}`, {
+            "value": value,
+            "filter_id": filterId
+        })
+    }
+
+    async removeFilter(id) {
         return await api.delete(`filter_values/${id}`);
     }
 }
