@@ -27,7 +27,7 @@ const handleSubmit = async () => {
     for (const value of images.value) {
       await ImageService.postImages(imageName.value, value.url);
     }
-    router.push('/images');
+    await router.push({name: 'images'});
     console.log(images.value);
   } catch (error) {
     console.error("Error saving image:", error);

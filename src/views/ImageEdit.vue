@@ -1,8 +1,8 @@
 <script setup>
 import {onMounted, ref} from "vue";
-import axios from "axios";
 import {useRoute} from "vue-router";
 import NavBar from "@/components/NavBar.vue";
+import ImageService from "@/services/image-service.js";
 
 const route = useRoute();
 const imageId = ref(route.params.id);
@@ -10,17 +10,13 @@ const imageValue = ref();
 const isVisible = ref(false);
 
 const fetchImages = async () => {
-  const response = await axios.get(`https://aerobay.onrender.com/api/images/${imageId.value}`);
-  imageValue.value = await response.data.image;
+  imageValue.value = await ImageService.getImage(imageId.value);
   console.log(imageValue.value);
 }
 
 const handleSubmit = async () => {
   try {
-    await axios.put(`https://aerobay.onrender.com/api/images/${imageId.value}`, {
-      "name": imageValue.value.name,
-      "url": imageValue.value.url,
-    });
+    await ImageService.updateImage(imageId.value, imageValue.value.name, imageValue.value.url);
     showNotification();
   } catch (e) {
     console.log(e);
