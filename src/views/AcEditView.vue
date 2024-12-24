@@ -158,6 +158,7 @@ import FilterValueService from "@/services/filter-value-service.js";
 import ManufacturesService from "@/services/manufactures-service.js";
 import AccessoryService from "@/services/accessory-service.js";
 import ImageService from "@/services/image-service.js";
+import router from "@/router/index.js";
 
 const route = useRoute();
 const accessoryId = ref(route.params.id);
@@ -232,9 +233,8 @@ const saveAccessory = async () => {
       subcategories: toRaw(accessoryDetails.value.subcategories.map(s => s.id)),
     };
     console.log(updatedAccessory);
-    await AccessoryService.editAccessory(accessoryId.value, updatedAccessory);
-    alert('Аксессуар успешно сохранен');
-    // router.push('/accessories');
+    await AccessoryService.updateAccessory(accessoryId.value, updatedAccessory);
+    await router.push({name: 'accessories'});
   } catch (error) {
     console.error('Ошибка при сохранении аксессуара:', error);
     alert('Ошибка при сохранении аксессуара');
@@ -271,7 +271,7 @@ watchEffect(() => {
   }
 });
 
-const selectedFilters = ref([]); // Создаем переменную для выбранных фильтров
+const selectedFilters = ref([]);
 
 
 const editorOptions = {

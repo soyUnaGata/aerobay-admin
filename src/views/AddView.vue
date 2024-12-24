@@ -125,6 +125,7 @@ import NavBar from "@/components/NavBar.vue";
 import Loader from "@/components/Loader.vue";
 import FilterService from "@/services/filter-service.js";
 import FilterValueService from "@/services/filter-value-service.js";
+import router from "@/router/index.js";
 
 const route = useRouter();
 const filter = ref({
@@ -172,7 +173,7 @@ const saveFilter = async () => {
       await FilterValueService.postFilter(value.value, filterId);
     }
     showNotification();
-    route.push({name: 'about'});
+    await router.push({name: 'about'});
   } catch (error) {
     console.error('Ошибка при обновлении данных:', error);
   }
