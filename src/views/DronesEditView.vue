@@ -4,14 +4,14 @@
   </nav>
   <div class="ml-64 flex-1 p-4 w-full">
     <Loader v-if="loading"/>
-    <h2 class="text-xl font-semibold">{{ accessoryDetails.title }}</h2>
+    <h2 class="text-xl font-semibold">{{ droneDetails.title }}</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border p-4 rounded-lg shadow-md"
-         :key="accessoryDetails.id">
+         :key="droneDetails.id">
       <div class="flex flex-col gap-2.5">
         <div class="space-y-2">
           <label class="block text-gray-700">Title</label>
           <input
-              v-model="accessoryDetails.title"
+              v-model="droneDetails.title"
               class="input-field w-full"
               type="text"
               placeholder="Name of accessory"
@@ -22,7 +22,7 @@
           <label class="block text-gray-700">Description</label>
           <editor
               api-key="odcydkl28d7x03wgsip6dxzkqtcx5olxt496s6x1nu87870j"
-              v-model="accessoryDetails.description"
+              v-model="droneDetails.description"
               :init="editorOptions"
               class="w-full border border-gray-300 rounded-md"
           />
@@ -31,7 +31,7 @@
         <div class="space-y-2">
           <label class="block text-gray-700">Price</label>
           <input
-              v-model="accessoryDetails.price"
+              v-model="droneDetails.price"
               class="input-field w-full"
               type="number"
               placeholder="Price"
@@ -41,7 +41,7 @@
         <div class="space-y-2">
           <label class="block text-gray-700">Discount</label>
           <input
-              v-model="accessoryDetails.discount"
+              v-model="droneDetails.discount"
               class="input-field w-full"
               type="number"
               placeholder="Discount"
@@ -51,7 +51,7 @@
         <div class="space-y-2">
           <label class="block text-gray-700">Image url</label>
           <input
-              v-model="accessoryDetails.image_url"
+              v-model="droneDetails.image_url"
               class="input-field w-full"
               type="text"
               placeholder="Image url"
@@ -64,7 +64,7 @@
         <div class="space-y-2">
           <label class="block text-gray-700">Dimensions</label>
           <input
-              v-model="accessoryDetails.dimensions"
+              v-model="droneDetails.dimensions"
               class="input-field w-full"
               type="text"
               placeholder="Dimensions"
@@ -74,7 +74,7 @@
         <div class="space-y-2">
           <label class="block text-gray-700">Weight</label>
           <input
-              v-model="accessoryDetails.weight"
+              v-model="droneDetails.weight"
               class="input-field w-full"
               type="text"
               placeholder="Weight"
@@ -84,7 +84,7 @@
         <div class="space-y-2">
           <label class="block text-gray-700">Type</label>
           <input
-              v-model="accessoryDetails.type"
+              v-model="droneDetails.type"
               class="input-field w-full"
               type="text"
               placeholder="Type"
@@ -94,7 +94,7 @@
         <div class="space-y-2">
           <label class="block text-gray-700">Amount</label>
           <input
-              v-model="accessoryDetails.amount"
+              v-model="droneDetails.amount"
               class="input-field w-full"
               type="number"
               placeholder="Amount"
@@ -103,14 +103,14 @@
 
         <div class="space-y-2">
           <label class="block text-gray-700">Manufacturer</label>
-          <ManufacturerSelect :selectedManufacturerId="accessoryDetails.manufacturer_id"
+          <ManufacturerSelect :selectedManufacturerId="droneDetails.manufacturer_id"
                               @update:selectedManufacturerId="updateManufacturerId"/>
         </div>
 
         <div class="space-y-2">
           <label class="block text-gray-700">Category</label>
           <CategorySelect
-              :selectedCategoryId="accessoryDetails.category_id"
+              :selectedCategoryId="droneDetails.category_id"
               @update:selectedCategoryId="updateCategoryId"
           />
         </div>
@@ -147,7 +147,6 @@ import {onMounted, ref, toRaw, watchEffect} from 'vue';
 import {useRoute} from 'vue-router';
 import 'quill/dist/quill.snow.css';
 import 'vue-multiselect/dist/vue-multiselect.min.css';
-import axios from "axios";
 import Multiselect from '../components/Multiselect.vue'
 import ManufacturerSelect from '../components/ManufacturerSelect.vue'
 import CategorySelect from "@/components/CategorySelect.vue";
@@ -155,10 +154,15 @@ import ImageSelector from "@/components/ImageSelector.vue";
 import Editor from '@tinymce/tinymce-vue'
 import Loader from "@/components/Loader.vue";
 import NavBar from "@/components/NavBar.vue";
+import DroneService from "@/services/drone-service.js";
+import FilterValueService from "@/services/filter-value-service.js";
+import ManufacturesService from "@/services/manufactures-service.js";
+import router from "@/router/index.js";
+import ImageService from "@/services/image-service.js";
 
 const route = useRoute();
-const accessoryId = ref(route.params.id);
-const accessoryDetails = ref({});
+const droneId = ref(route.params.id);
+const droneDetails = ref({});
 const filters = ref([]);
 const manufacturers = ref([]);
 const combinedFilterOptions = ref();
@@ -169,19 +173,14 @@ const loading = ref(true);
 
 const editorRef = ref(null);
 
-// Reference to the editor container
 
 const accessories = async () => {
   try {
-    const response = await axios.get(`https://aerobay.onrender.com/api/drones/${accessoryId.value}`);
-    console.log(response.data);
-    accessoryDetails.value = response.data.drone;
-    selectedImageIds.value = accessoryDetails.value.images.map(i => i.id) || [];
-    accessoryDetails.value.description = accessoryDetails.value.description || '';
-    selectedFilters.value = accessoryDetails.value.filter_values || [];
-    // if (!filterDetails.value.filter.filter_values || filterDetails.value.filter.filter_values.length === 0) {
-    //   filterDetails.value.filter.filter_values = [{ value: '' }];
-    // }
+    droneDetails.value = await DroneService.getDrone(droneId.value);
+    selectedImageIds.value = droneDetails.value.images.map(i => i.id) || [];
+    droneDetails.value.description = droneDetails.value.description || '';
+    selectedFilters.value = droneDetails.value.filter_values || [];
+
   } catch (error) {
     console.error('Ошибка при загрузке группы:', error);
   } finally {
@@ -191,12 +190,7 @@ const accessories = async () => {
 
 const fetchFilters = async () => {
   try {
-    const response = await axios.get('https://aerobay.onrender.com/api/filter_values');
-    console.log('-')
-    filters.value = await response.data || [];
-    console.log(response.data);
-    allFilterValues.value = filters.value.map(f => f.value ? f.value : '');
-
+    filters.value = await FilterValueService.getAllValues();
   } catch (error) {
     console.error('Ошибка при загрузке подкатегорий:', error);
   }
@@ -204,20 +198,18 @@ const fetchFilters = async () => {
 
 const fetchManufacturer = async () => {
   try {
-    const response = await axios.get(`https://aerobay.onrender.com/api/manufactures`);
-    manufacturers.value = response.data.data;
-    console.log(manufacturers.value)
+    manufacturers.value = await ManufacturesService.getAllManufactures();
   } catch (error) {
     console.log(error);
   }
 }
 
 const updateManufacturerId = (id) => {
-  accessoryDetails.value.manufacturer_id = id;
+  droneDetails.value.manufacturer_id = id;
 }
 
 const updateCategoryId = (id) => {
-  accessoryDetails.value.category_id = id;
+  droneDetails.value.category_id = id;
 }
 
 const handleImageSelection = (newImageIds) => {
@@ -227,11 +219,11 @@ const handleImageSelection = (newImageIds) => {
 
 const onEditorChange = ({quill, html, text}) => {
   console.log('Editor change detected:', html);
-  accessoryDetails.description = html;
+  droneDetails.description = html;
 }
 
 const onTextChange = (content) => {
-  accessoryDetails.value.description = content;
+  droneDetails.value.description = content;
 };
 
 const cleanHTML = (html) => {
@@ -243,20 +235,19 @@ const cleanHTML = (html) => {
 const saveAccessory = async () => {
   try {
 
-    console.log(accessoryDetails.value.subcategories)
-    const updatedAccessory = {
-      ...accessoryDetails.value,
-      description: cleanHTML(accessoryDetails.value.description),
+    console.log(droneDetails.value.subcategories)
+    const updatedDrone = {
+      ...droneDetails.value,
+      description: cleanHTML(droneDetails.value.description),
       images: selectedImageIds.value || [],
       filter_values: selectedFilters.value.map(f => f.id) || [],
-      manufacturer_id: accessoryDetails.value.manufacturer_id,
-      category_id: accessoryDetails.value.category_id,
-      subcategories: toRaw(accessoryDetails.value.subcategories.map(s => s.id)),
+      manufacturer_id: droneDetails.value.manufacturer_id,
+      category_id: droneDetails.value.category_id,
+      subcategories: toRaw(droneDetails.value.subcategories.map(s => s.id)),
     };
-    console.log(updatedAccessory);
-    await axios.put(`https://aerobay.onrender.com/api/drones/${accessoryId.value}`, updatedAccessory);
-    alert('Аксессуар успешно сохранен');
-    // router.push('/accessories');
+    console.log(updatedDrone);
+    await DroneService.updateDrone(droneId.value, updatedDrone)
+    router.push('/drones');
   } catch (error) {
     console.error('Ошибка при сохранении аксессуара:', error);
     alert('Ошибка при сохранении аксессуара');
@@ -265,37 +256,31 @@ const saveAccessory = async () => {
 
 const images = async () => {
   try {
-    const response = await axios.get(`https://aerobay.onrender.com/api/images`);
-    availableImages.value = response.data.data;
+    availableImages.value = await ImageService.getAllImages();
     console.log(availableImages.value);
   } catch (error) {
     console.log(error);
   }
 }
 
-// const allFilterValues = computed(() => filters.value.map(f => f.value));
 
 watchEffect(() => {
-  if (accessoryDetails.value.filter_values?.length > 0) {
-    // Получаем Set из выбранных фильтров для проверки уникальности
-    const selectedFilterIds = new Set(accessoryDetails.value.filter_values.map(f => f.value));
-    // Инициализируем комбинированный список с выбранными фильтрами
-    combinedFilterOptions.value = [...accessoryDetails.value.filter_values];
+  if (droneDetails.value.filter_values?.length > 0) {
+    const selectedFilterIds = new Set(droneDetails.value.filter_values.map(f => f.value));
+    combinedFilterOptions.value = [...droneDetails.value.filter_values];
     console.log(combinedFilterOptions.value);
-    // Добавляем фильтры, которых нет в выбранных
     filters.value.forEach(filter => {
       if (!selectedFilterIds.has(filter.value)) {
         combinedFilterOptions.value.push(filter);
       }
     });
   } else {
-    // Если выбранных фильтров нет, добавляем все доступные
     combinedFilterOptions.value = filters.value.map(f => [f.value, f.filter.name]);
     console.log(filters.value);
   }
 });
 
-const selectedFilters = ref([]); // Создаем переменную для выбранных фильтров
+const selectedFilters = ref([]);
 
 
 const editorOptions = {
