@@ -1,40 +1,35 @@
 <template>
-  <div class="category-select relative mb-4">
-    <!--    <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>-->
-    <div @click="toggleDropdown"
-         class="relative cursor-pointer select-input w-full px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm text-left focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-      <span v-if="selectedCategory" class="text-gray-700">{{ selectedCategory.name }}</span>
-      <span v-else class="text-gray-400">Выберите категорию</span>
-      <svg class="w-5 h-5 absolute right-3 top-3 text-gray-500 pointer-events-none" fill="currentColor"
-           viewBox="0 0 20 20">
-        <path fill-rule="evenodd"
-              d="M5.292 7.707a1 1 0 011.414 0L10 11.586l3.293-3.879a1 1 0 111.414 1.415l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.415z"
-              clip-rule="evenodd"/>
-      </svg>
+  <div class="manufacturer-select" ref="selectContainer">
+    <div class="selected-manufacturer" @click="toggleDropdown">
+      <span v-if="selectedCategory">{{ selectedCategory.name }}</span>
+      <span v-else class="placeholder">Select category...</span>
+      <span class="dropdown-arrow" :class="{ open: isOpen }">▼</span>
     </div>
 
-    <div v-if="isOpen"
-         class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
-      <ul>
-        <li
-            v-for="category in categories"
-            :key="category.id"
-            @click="selectCategory(category)"
-            class="cursor-pointer px-4 py-2 hover:bg-indigo-500 hover:text-white"
-            :class="{
-            'bg-indigo-100 text-indigo-600': category.id === selectedCategoryId,
-            'text-gray-700': category.id !== selectedCategoryId
-          }"
-        >
-          {{ category.name }}
-        </li>
-      </ul>
+    <div v-if="isOpen" class="dropdown">
+      <input
+          type="text"
+          v-model="searchTerm"
+          placeholder="Search..."
+          class="search-input"
+      />
+
+      <div
+          v-for="category in filteredCategories"
+          :key="category.id"
+          class="cursor-pointer px-4 py-2 hover:bg-indigo-500 hover:text-white"
+          @click="selectCategory(category)"
+          :class="['option', category.id === selectedCategoryId ? 'selected' : '']"
+      >
+        {{ category.name }}
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import axios from 'axios';
+import {computed, onBeforeUnmount, onMounted, ref, watch} from "vue";
+import axios from "axios";
 
 export default {
   props: {
@@ -43,59 +38,143 @@ export default {
       default: null,
     },
   },
-  data() {
-    return {
-      categories: [],
-      selectedCategory: null,
-      isOpen: false,
-    };
-  },
-  watch: {
-    selectedCategoryId: {
-      immediate: true,
-      handler(newValue) {
-        this.setSelectedCategory(newValue);
-      },
-    },
-  },
-  async created() {
-    await this.fetchCategories();
-  },
-  methods: {
-    async fetchCategories() {
+  setup(props, {emit}) {
+    const categories = ref([]);
+    const selectedCategory = ref(null);
+    const isOpen = ref(false);
+    const searchTerm = ref("");
+
+    const filteredCategories = computed(() => {
+      return categories.value.filter((category) =>
+          category.name.toLowerCase().includes(searchTerm.value.toLowerCase())
+      );
+    });
+
+    const fetchCategories = async () => {
       try {
-        const response = await axios.get(`https://aerobay.onrender.com/api/categories`);
-        this.categories = response.data.data;
-        this.setSelectedCategory(this.selectedCategoryId);
+        const response = await axios.get(
+            "https://aerobay.onrender.com/api/categories"
+        );
+        categories.value = response.data.data;
+        setSelectedCategory(props.selectedCategoryId);
       } catch (error) {
         console.error("Ошибка при загрузке категорий:", error);
       }
-    },
-    setSelectedCategory(categoryId) {
-      this.selectedCategory = this.categories.find(
+    };
+
+    const setSelectedCategory = (categoryId) => {
+      selectedCategory.value = categories.value.find(
           (category) => category.id === categoryId
       );
-    },
-    toggleDropdown() {
-      this.isOpen = !this.isOpen;
-    },
-    selectCategory(category) {
-      this.isOpen = false;
-      this.$emit("update:selectedCategoryId", category.id);
-      this.setSelectedCategory(category.id);
-    },
+    };
+
+    const toggleDropdown = () => {
+      isOpen.value = !isOpen.value;
+    };
+
+    const selectCategory = (category) => {
+      isOpen.value = false;
+      emit("update:selectedCategoryId", category.id);
+      setSelectedCategory(category.id);
+    };
+
+    watch(
+        () => props.selectedCategoryId,
+        (newValue) => {
+          setSelectedCategory(newValue);
+        },
+        {immediate: true}
+    );
+
+    // onMounted(fetchCategories);
+    const closeDropdown = (event) => {
+      if (!selectContainer.value.contains(event.target)) {
+        isOpen.value = false;
+      }
+    };
+
+    const selectContainer = ref(null);
+
+    onMounted(() => {
+      fetchCategories();
+      document.addEventListener('click', closeDropdown);
+    });
+
+    onBeforeUnmount(() => {
+      document.removeEventListener('click', closeDropdown);
+    });
+
+
+    return {
+      categories,
+      selectedCategory,
+      selectContainer,
+      isOpen,
+      searchTerm,
+      filteredCategories,
+      toggleDropdown,
+      selectCategory,
+    };
   },
 };
 </script>
 
 <style scoped>
-.select-input {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+.manufacturer-select {
+  position: relative;
+  width: 100%;
 }
 
-.category-select .dropdown {
-  position: relative;
+.selected-manufacturer {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.placeholder {
+  color: #999;
+}
+
+.dropdown-arrow {
+  margin-left: auto;
+  transition: transform 0.3s;
+}
+
+.dropdown-arrow.open {
+  transform: rotate(180deg);
+}
+
+.dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+  z-index: 10;
+  padding: 8px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 6px;
+  margin-bottom: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.option {
+  padding: 6px 8px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.option.selected {
+  background-color: rgb(99 102 241);
+  color: white;
 }
 </style>
