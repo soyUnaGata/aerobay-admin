@@ -200,13 +200,6 @@ const fetchManufacturer = async () => {
   }
 }
 
-let showNotification = () => {
-  isVisible.value = true;
-  setTimeout(() => {
-    isVisible.value = false;
-  }, 5000);
-};
-
 const addAccessory = async () => {
   try {
     const newAccessory = {
@@ -217,7 +210,7 @@ const addAccessory = async () => {
       filter_values: selectedFilters.value.map(f => f.id)
     };
     await AccessoryService.addAccessory(newAccessory);
-    showNotification();
+    await showNotification(isVisible);
     // await router.push({name: 'accessories'});
     alert('Аксессуар успешно добавлен');
   } catch (error) {
