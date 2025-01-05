@@ -83,10 +83,10 @@
 </template>
 
 <script setup>
-import axios from "axios";
 import {computed, onMounted, ref} from 'vue';
 import Loader from '@/components/Loader.vue';
 import NavBar from "@/components/NavBar.vue";
+import DroneService from "@/services/drone-service.js";
 
 const searchTerm = ref('');
 const currentPage = ref(1);
@@ -97,8 +97,7 @@ const products = ref([]);
 
 const fetchDrones = async () => {
   try {
-    const response = await axios.get('https://aerobay.onrender.com/api/drones');
-    products.value = await response.data.drones;
+    products.value = await DroneService.getAllDrones();
   } catch (error) {
     console.error('Ошибка при загрузке подкатегорий:', error);
   } finally {
@@ -131,10 +130,10 @@ function editProduct(id) {
   alert(`Редактировать товар: ${id}`);
 }
 
-function deleteProduct(productId) {
+async function deleteProduct(productId) {
   products.value = products.value.filter((product) => product.id !== productId);
   try {
-    axios.delete(`https://aerobay.onrender.com/api/accessories/${productId}`)
+    await DroneService.removeDrone(productId);
   } catch (error) {
     console.log(error);
   }
