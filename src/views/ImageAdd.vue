@@ -1,8 +1,8 @@
 <script setup>
 import {ref} from "vue";
-import router from "@/router/index.js";
 import NavBar from "@/components/NavBar.vue";
 import ImageService from "@/services/image-service.js";
+import {showNotification} from "@/helpers/showNotification.js";
 
 let isVisible = ref(false);
 const images = ref([
@@ -23,24 +23,18 @@ const removeValue = (index) => {
 
 const imageName = ref('');
 
-let showNotification = () => {
-  isVisible.value = true;
-  setTimeout(() => {
-    isVisible.value = false;
-  }, 5000);
-};
-
 const handleSubmit = async () => {
   try {
     for (const value of images.value) {
       await ImageService.postImages(imageName.value, value.url);
     }
-    showNotification();
-    await router.push({name: 'images'});
+    await showNotification(isVisible);
+    // await router.push({name: 'images'});
     console.log(images.value);
   } catch (error) {
     console.error("Error saving image:", error);
   }
+  window.location.href = '/images';
 };
 
 
