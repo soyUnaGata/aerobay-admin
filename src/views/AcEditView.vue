@@ -159,8 +159,8 @@ import FilterValueService from "@/services/filter-value-service.js";
 import ManufacturesService from "@/services/manufactures-service.js";
 import AccessoryService from "@/services/accessory-service.js";
 import ImageService from "@/services/image-service.js";
-import router from "@/router/index.js";
 import SuccessNotification from "@/components/SuccessNotification.vue";
+import {showNotification} from '@/helpers/showNotification.js'
 
 const route = useRoute();
 const accessoryId = ref(route.params.id);
@@ -224,12 +224,6 @@ const cleanHTML = (html) => {
   return tempDiv.textContent || tempDiv.innerText || "";
 };
 
-let showNotification = () => {
-  isVisible.value = true;
-  setTimeout(() => {
-    isVisible.value = false;
-  }, 5000);
-};
 
 const saveAccessory = async () => {
   try {
@@ -242,14 +236,14 @@ const saveAccessory = async () => {
       category_id: accessoryDetails.value.category_id,
       subcategories: toRaw(accessoryDetails.value.subcategories.map(s => s.id)),
     };
-    console.log(updatedAccessory);
     await AccessoryService.updateAccessory(accessoryId.value, updatedAccessory);
-    showNotification();
-    await router.push({name: 'accessories'});
+    await showNotification(isVisible);
+    //await router.push({name: 'accessories'});
   } catch (error) {
     console.error('Ошибка при сохранении аксессуара:', error);
     alert('Ошибка при сохранении аксессуара');
   }
+  window.location.href = '/accessories';
 };
 
 const images = async () => {
@@ -277,7 +271,7 @@ watchEffect(() => {
     });
   } else {
     // Если выбранных фильтров нет, добавляем все доступные
-    combinedFilterOptions.value = filters.value.map(f => [f.value, f.filter.name]);
+    combinedFilterOptions.value = filters.value.map(f => [f.value, f.filter?.name]);
     console.log(filters.value);
   }
 });
