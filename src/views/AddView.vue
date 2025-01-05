@@ -107,6 +107,7 @@ import Loader from "@/components/Loader.vue";
 import FilterService from "@/services/filter-service.js";
 import FilterValueService from "@/services/filter-value-service.js";
 import SuccessNotification from "@/components/SuccessNotification.vue";
+import {showNotification} from "@/helpers/showNotification.js";
 
 const route = useRouter();
 const filter = ref({
@@ -152,7 +153,7 @@ const saveFilter = async () => {
       await FilterValueService.postFilter(value.value, filterId);
 
     }
-    showNotification();
+    await showNotification(isVisible);
     // await router.push({name: 'filters'});
   } catch (error) {
     console.error('Ошибка при обновлении данных:', error);
@@ -168,14 +169,6 @@ const addNewValue = () => {
 const removeValue = (index) => {
   filter.value.filter.filter_values.splice(index, 1);
 };
-
-let showNotification = () => {
-  isVisible.value = true;
-  setTimeout(() => {
-    isVisible.value = false;
-  }, 5000);
-};
-
 
 onMounted(async () => {
   await fetchCategories();
