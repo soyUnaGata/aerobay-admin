@@ -4,6 +4,7 @@ import {useRoute} from "vue-router";
 import NavBar from "@/components/NavBar.vue";
 import ImageService from "@/services/image-service.js";
 import SuccessNotification from "@/components/SuccessNotification.vue";
+import {showNotification} from "@/helpers/showNotification.js";
 
 const route = useRoute();
 const imageId = ref(route.params.id);
@@ -18,18 +19,12 @@ const fetchImages = async () => {
 const handleSubmit = async () => {
   try {
     await ImageService.updateImage(imageId.value, imageValue.value.name, imageValue.value.url);
-    showNotification();
+    await showNotification(isVisible);
   } catch (e) {
     console.log(e);
   }
+  window.location.href = '/images';
 }
-
-let showNotification = () => {
-  isVisible.value = true;
-  setTimeout(() => {
-    isVisible.value = false;
-  }, 5000);
-};
 
 onMounted(async () => {
   await fetchImages();
