@@ -7,6 +7,10 @@ class AccessoryService {
             .catch((err) => null);
     }
 
+    async addAccessory(accessory) {
+        return await api.post(`accessories`, accessory)
+    }
+
     async updateAccessory(id, accessory) {
         return await api.post(`accessories/${id}`, accessory);
     }
