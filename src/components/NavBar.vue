@@ -50,7 +50,7 @@
             </a>
           </li>
           <li>
-            <a href="/about" class="flex items-center space-x-4 p-2 rounded-lg hover:bg-gray-800">
+            <a href="/filters" class="flex items-center space-x-4 p-2 rounded-lg hover:bg-gray-800">
               <span class="text-gray-400">📊</span>
               <span>Filters</span>
             </a>
