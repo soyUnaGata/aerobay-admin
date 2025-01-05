@@ -139,6 +139,7 @@
       <RouterLink to="/accessories">Back</RouterLink>
     </div>
   </div>
+  <SuccessNotification :isVisible="isVisible"/>
 </template>
 
 
@@ -159,6 +160,7 @@ import ManufacturesService from "@/services/manufactures-service.js";
 import AccessoryService from "@/services/accessory-service.js";
 import ImageService from "@/services/image-service.js";
 import router from "@/router/index.js";
+import SuccessNotification from "@/components/SuccessNotification.vue";
 
 const route = useRoute();
 const accessoryId = ref(route.params.id);
@@ -169,6 +171,7 @@ const combinedFilterOptions = ref();
 const availableImages = ref([]);
 const selectedImageIds = ref([]);
 const loading = ref(true);
+let isVisible = ref(false);
 
 const editorRef = ref(null);
 
@@ -221,6 +224,13 @@ const cleanHTML = (html) => {
   return tempDiv.textContent || tempDiv.innerText || "";
 };
 
+let showNotification = () => {
+  isVisible.value = true;
+  setTimeout(() => {
+    isVisible.value = false;
+  }, 5000);
+};
+
 const saveAccessory = async () => {
   try {
     const updatedAccessory = {
@@ -234,6 +244,7 @@ const saveAccessory = async () => {
     };
     console.log(updatedAccessory);
     await AccessoryService.updateAccessory(accessoryId.value, updatedAccessory);
+    showNotification();
     await router.push({name: 'accessories'});
   } catch (error) {
     console.error('Ошибка при сохранении аксессуара:', error);

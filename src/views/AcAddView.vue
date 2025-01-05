@@ -136,12 +136,13 @@
 
       <div class="col-span-2">
         <button @click="addAccessory" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-          Добавить
+          Save
         </button>
         <RouterLink to="/accessories" class="ml-4 text-blue-500 hover:underline">Back</RouterLink>
       </div>
     </div>
   </div>
+  <SuccessNotification :isVisible="isVisible"/>
 </template>
 
 <script setup>
@@ -157,6 +158,8 @@ import FilterValueService from "@/services/filter-value-service.js";
 import ImageService from "@/services/image-service.js";
 import ManufacturesService from "@/services/manufactures-service.js";
 import AccessoryService from "@/services/accessory-service.js";
+import router from "@/router/index.js";
+import SuccessNotification from "@/components/SuccessNotification.vue";
 
 const accessoryDetails = ref({
   title: '',
@@ -175,6 +178,7 @@ const accessoryDetails = ref({
   filter_values: []
 });
 
+let isVisible = ref(false);
 const filters = ref([]);
 const selectedFilters = ref([]);
 const availableImages = ref([]);
@@ -197,6 +201,13 @@ const fetchManufacturer = async () => {
   }
 }
 
+let showNotification = () => {
+  isVisible.value = true;
+  setTimeout(() => {
+    isVisible.value = false;
+  }, 5000);
+};
+
 const addAccessory = async () => {
   try {
     const newAccessory = {
@@ -207,6 +218,8 @@ const addAccessory = async () => {
       filter_values: selectedFilters.value.map(f => f.id)
     };
     await AccessoryService.addAccessory(newAccessory);
+    showNotification();
+    await router.push({name: 'accessories'});
     alert('Аксессуар успешно добавлен');
   } catch (error) {
     console.error('Ошибка при добавлении аксессуара:', error);
