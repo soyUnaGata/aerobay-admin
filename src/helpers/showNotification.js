@@ -1,6 +1,9 @@
 export let showNotification = (isVisibleRef) => {
-    isVisibleRef.value = true;
-    setTimeout(() => {
-        isVisibleRef.value = false;
-    }, 5000);
+    return new Promise((resolve) => {
+        isVisibleRef.value = true;
+        setTimeout(() => {
+            isVisibleRef.value = false;
+            resolve();
+        }, 5000);
+    });
 };
