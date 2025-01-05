@@ -102,7 +102,7 @@ import FilterValueService from "@/services/filter-value-service.js";
 import FilterService from "@/services/filter-service.js";
 import SuccessNotification from "@/components/SuccessNotification.vue";
 import NavBar from "@/components/NavBar.vue";
-import router from "@/router/index.js";
+import {showNotification} from "@/helpers/showNotification.js";
 
 const route = useRoute();
 const filterId = ref(route.params.id);
@@ -161,13 +161,6 @@ const removeValue = (index, id) => {
   }
 };
 
-let showNotification = () => {
-  isVisible.value = true;
-  setTimeout(() => {
-    isVisible.value = false;
-  }, 5000);
-};
-
 const handleSubmit = async () => {
   try {
     await FilterService.updateFilter(filterId.value, filterDetails.value.filter.name, filterDetails.value.filter.category_id, filterDetails.value.filter.group_id);
@@ -179,7 +172,7 @@ const handleSubmit = async () => {
 
       if (filterValue.id) {
         await FilterValueService.updateFilter(filterValue.id, filterValue.value, filterId.value);
-        showNotification();
+
       } else {
         await FilterValueService.postFilter(filterValue.value, filterId.value);
       }
@@ -190,10 +183,12 @@ const handleSubmit = async () => {
     }
 
     deleteIds.value = [];
-    await router.push({name: 'filters'});
+    await showNotification(isVisible);
+    // await router.push({name: 'filters'});
   } catch (error) {
     console.error('Ошибка при обновлении данных:', error);
   }
+  window.location.href = '/filters';
 };
 
 
