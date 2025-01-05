@@ -134,9 +134,9 @@
           </div>
         </div>
       </div>
-      <button @click="saveAccessory" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Save
+      <button @click="saveDrone" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Save
       </button>
-      <RouterLink to="/accessories">Back</RouterLink>
+      <RouterLink :to="{ name: 'drones'}">Back</RouterLink>
     </div>
   </div>
 </template>
@@ -232,7 +232,7 @@ const cleanHTML = (html) => {
   return tempDiv.textContent || tempDiv.innerText || "";
 };
 
-const saveAccessory = async () => {
+const saveDrone = async () => {
   try {
 
     console.log(droneDetails.value.subcategories)
@@ -247,7 +247,7 @@ const saveAccessory = async () => {
     };
     console.log(updatedDrone);
     await DroneService.updateDrone(droneId.value, updatedDrone)
-    router.push('/drones');
+    await router.push({name: 'drones'});
   } catch (error) {
     console.error('Ошибка при сохранении аксессуара:', error);
     alert('Ошибка при сохранении аксессуара');
