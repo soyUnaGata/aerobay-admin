@@ -156,6 +156,7 @@ import Loader from "@/components/Loader.vue";
 import NavBar from "@/components/NavBar.vue";
 import FilterValueService from "@/services/filter-value-service.js";
 import ImageService from "@/services/image-service.js";
+import ManufacturesService from "@/services/manufactures-service.js";
 
 const accessoryDetails = ref({
   title: '',
@@ -190,8 +191,7 @@ const fetchFilters = async () => {
 
 const fetchManufacturer = async () => {
   try {
-    const response = await axios.get(`https://aerobay.onrender.com/api/manufactures`);
-    manufacturers.value = response.data.data;
+    manufacturers.value = await ManufacturesService.getAll();
   } catch (error) {
     console.log(error);
   }
@@ -206,6 +206,7 @@ const addAccessory = async () => {
       subcategories: toRaw(accessoryDetails.value.subcategories.map(s => s.id)),
       filter_values: selectedFilters.value.map(f => f.id)
     };
+    await AccessoryService.addAccessory(newAccessory);
     await axios.post(`https://aerobay.onrender.com/api/accessories`, newAccessory);
     alert('Аксессуар успешно добавлен');
   } catch (error) {

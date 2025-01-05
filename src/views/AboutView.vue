@@ -3,12 +3,12 @@
     <nav class="fixed left-0 top-0 h-screen w-64 bg-gray-800 text-white">
       <NavBar/>
     </nav>
-    <div class="ml-64 flex-1 p-4">
-
+    <div class="ml-64 flex-1 p-4 w-full">
       <Loader v-if="loading"/>
+      <h2 class="">Filters</h2>
+      <RouterLink :to="{name: 'filter-add'}">Add</RouterLink>
       <div class="flex" name="fade" v-for="(filter, index) in filters" :key="filter.id" :id="filter.id"
-           v-show="!loading">
-        <RouterLink :to="{name: 'filter-add'}">Add</RouterLink>
+      >
         <Popover :id="filter.id"
                  class="relative shadow-lg ring-1 ring-gray-900/5 w-100 w-screen flex-auto overflow-hidden rounded-3xl bg-white text-sm leading-6 shadow-lg ring-1">
           <PopoverButton
@@ -53,7 +53,7 @@
 import Loader from '@/components/Loader.vue';
 import {onMounted, ref, watch,} from "vue";
 import {Popover, PopoverButton, PopoverPanel} from '@headlessui/vue'
-import {ChevronDownIcon, PhoneIcon, PlayCircleIcon} from '@heroicons/vue/20/solid'
+import {ChevronDownIcon} from '@heroicons/vue/20/solid'
 import NavBar from "@/components/NavBar.vue";
 import FilterService from "@/services/filter-service.js";
 
@@ -97,43 +97,12 @@ onMounted(async () => {
 
 });
 
-// const solutions = [
-//   { name: 'Analytics', description: 'Get a better understanding of your traffic', href: '#', icon: ChartPieIcon },
-//   { name: 'Engagement', description: 'Speak directly to your customers', href: '#', icon: CursorArrowRaysIcon },
-//   { name: 'Security', description: "Your customers' data will be safe and secure", href: '#', icon: FingerPrintIcon },
-//   { name: 'Integrations', description: 'Connect with third-party tools', href: '#', icon: SquaresPlusIcon },
-//   { name: 'Automations', description: 'Build strategic funnels that will convert', href: '#', icon: ArrowPathIcon },
-// ]
-const callsToAction = [
-  {name: 'Watch demo', href: '#', icon: PlayCircleIcon},
-  {name: 'Contact sales', href: '#', icon: PhoneIcon},
-]
-
 
 </script>
 
 <style>
-@media (min-width: 1024px) {
-  .about {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-  }
-}
-
 .dropdown__filter {
   outline: none;
 }
 
-.fade-enter-active, .fade-leave-active {
-  transition: opacity 0.5s;
-}
-
-.fade-enter, .fade-leave-to {
-  opacity: 0;
-}
-
-.filter-item {
-  margin-bottom: 10px;
-}
 </style>
