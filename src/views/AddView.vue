@@ -106,7 +106,6 @@ import NavBar from "@/components/NavBar.vue";
 import Loader from "@/components/Loader.vue";
 import FilterService from "@/services/filter-service.js";
 import FilterValueService from "@/services/filter-value-service.js";
-import router from "@/router/index.js";
 import SuccessNotification from "@/components/SuccessNotification.vue";
 
 const route = useRouter();
@@ -145,20 +144,20 @@ const fetchGroups = async () => {
 };
 
 const saveFilter = async () => {
-  console.log('Отправка формы');
   try {
     const filterResponse = await FilterService.postFilter(filter.value.name, filter.value.category_id, filter.value.group_id);
-
     const filterId = filterResponse.data.data.id;
 
     for (const value of filter.value.filter.filter_values) {
       await FilterValueService.postFilter(value.value, filterId);
+
     }
     showNotification();
-    await router.push({name: 'filters'});
+    // await router.push({name: 'filters'});
   } catch (error) {
     console.error('Ошибка при обновлении данных:', error);
   }
+  window.location.href = '/filters';
 }
 
 const addNewValue = () => {
