@@ -4,11 +4,11 @@
   </nav>
   <div class="ml-64 flex-1 p-4 w-full">
     <Loader v-if="loading"/>
-    <h2 class="text-xl font-semibold">Добавление аксессуара</h2>
+    <h2 class="text-xl font-semibold">Add accessory</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border p-4 rounded-lg shadow-md">
       <div class="flex flex-col gap-2.5">
         <div class="space-y-2">
-          <label class="block text-gray-700">Название</label>
+          <label class="block text-gray-700">Title</label>
           <input
               v-model="accessoryDetails.title"
               class="input-field w-full"
@@ -18,7 +18,7 @@
         </div>
 
         <div class="space-y-2 col-span-2">
-          <label class="block text-gray-700">Описание</label>
+          <label class="block text-gray-700">Description</label>
           <editor
               api-key="odcydkl28d7x03wgsip6dxzkqtcx5olxt496s6x1nu87870j"
               v-model="accessoryDetails.description"
@@ -28,7 +28,7 @@
         </div>
 
         <div class="space-y-2">
-          <label class="block text-gray-700">Цена</label>
+          <label class="block text-gray-700">Price</label>
           <input
               v-model="accessoryDetails.price"
               class="input-field w-full"
@@ -38,7 +38,7 @@
         </div>
 
         <div class="space-y-2">
-          <label class="block text-gray-700">Скидка (%)</label>
+          <label class="block text-gray-700">Discount (%)</label>
           <input
               v-model="accessoryDetails.discount"
               class="input-field w-full"
@@ -48,7 +48,7 @@
         </div>
 
         <div class="space-y-2">
-          <label class="block text-gray-700">URL изображения</label>
+          <label class="block text-gray-700">Image URL</label>
           <input
               v-model="accessoryDetails.image_url"
               class="input-field w-full"
@@ -61,7 +61,7 @@
 
       <div class="flex flex-col gap-2.5">
         <div class="space-y-2">
-          <label class="block text-gray-700">Размеры</label>
+          <label class="block text-gray-700">Dimension</label>
           <input
               v-model="accessoryDetails.dimensions"
               class="input-field w-full"
@@ -71,7 +71,7 @@
         </div>
 
         <div class="space-y-2">
-          <label class="block text-gray-700">Вес</label>
+          <label class="block text-gray-700">Weight</label>
           <input
               v-model="accessoryDetails.weight"
               class="input-field w-full"
@@ -81,7 +81,7 @@
         </div>
 
         <div class="space-y-2">
-          <label class="block text-gray-700">Тип</label>
+          <label class="block text-gray-700">Type</label>
           <input
               v-model="accessoryDetails.type"
               class="input-field w-full"
@@ -91,7 +91,7 @@
         </div>
 
         <div class="space-y-2">
-          <label class="block text-gray-700">Количество на складе</label>
+          <label class="block text-gray-700">Amount left</label>
           <input
               v-model="accessoryDetails.amount"
               class="input-field w-full"
@@ -101,21 +101,21 @@
         </div>
 
         <div class="space-y-2">
-          <label class="block text-gray-700">Производитель</label>
+          <label class="block text-gray-700">Manufacturer</label>
           <ManufacturerSelect
               v-model="accessoryDetails.manufacturer_id"
           />
         </div>
 
         <div class="space-y-2">
-          <label class="block text-gray-700">Категория</label>
+          <label class="block text-gray-700">Category</label>
           <CategorySelect
               v-model="accessoryDetails.category_id"
           />
         </div>
 
         <div class="space-y-2">
-          <label class="block text-gray-700">Фильтры</label>
+          <label class="block text-gray-700">Filters</label>
           <Multiselect
               v-model="selectedFilters"
               :options="filters"
@@ -126,7 +126,7 @@
         </div>
 
         <div class="space-y-2">
-          <label class="block text-gray-700">Главное изображение</label>
+          <label class="block text-gray-700">Main Image</label>
           <ImageSelector
               :images="availableImages"
               v-model:selectedImages="selectedImageIds"
@@ -138,7 +138,7 @@
         <button @click="addAccessory" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
           Добавить
         </button>
-        <RouterLink to="/accessories" class="ml-4 text-blue-500 hover:underline">Назад</RouterLink>
+        <RouterLink to="/accessories" class="ml-4 text-blue-500 hover:underline">Back</RouterLink>
       </div>
     </div>
   </div>
@@ -146,7 +146,6 @@
 
 <script setup>
 import {onMounted, ref, toRaw} from 'vue';
-import axios from "axios";
 import Multiselect from '../components/Multiselect.vue';
 import ManufacturerSelect from '../components/ManufacturerSelect.vue';
 import CategorySelect from "@/components/CategorySelect.vue";
@@ -157,6 +156,7 @@ import NavBar from "@/components/NavBar.vue";
 import FilterValueService from "@/services/filter-value-service.js";
 import ImageService from "@/services/image-service.js";
 import ManufacturesService from "@/services/manufactures-service.js";
+import AccessoryService from "@/services/accessory-service.js";
 
 const accessoryDetails = ref({
   title: '',
@@ -191,7 +191,7 @@ const fetchFilters = async () => {
 
 const fetchManufacturer = async () => {
   try {
-    manufacturers.value = await ManufacturesService.getAll();
+    manufacturers.value = await ManufacturesService.getAllManufactures();
   } catch (error) {
     console.log(error);
   }
@@ -207,7 +207,6 @@ const addAccessory = async () => {
       filter_values: selectedFilters.value.map(f => f.id)
     };
     await AccessoryService.addAccessory(newAccessory);
-    await axios.post(`https://aerobay.onrender.com/api/accessories`, newAccessory);
     alert('Аксессуар успешно добавлен');
   } catch (error) {
     console.error('Ошибка при добавлении аксессуара:', error);
