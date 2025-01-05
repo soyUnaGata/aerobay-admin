@@ -139,6 +139,7 @@
       <RouterLink :to="{ name: 'drones'}">Back</RouterLink>
     </div>
   </div>
+  <SuccessNotification :isVisible="isVisible"/>
 </template>
 
 
@@ -157,8 +158,10 @@ import NavBar from "@/components/NavBar.vue";
 import DroneService from "@/services/drone-service.js";
 import FilterValueService from "@/services/filter-value-service.js";
 import ManufacturesService from "@/services/manufactures-service.js";
-import router from "@/router/index.js";
 import ImageService from "@/services/image-service.js";
+import SuccessNotification from "@/components/SuccessNotification.vue";
+import {showNotification} from "@/helpers/showNotification.js";
+
 
 const route = useRoute();
 const droneId = ref(route.params.id);
@@ -170,11 +173,12 @@ const allFilterValues = ref([]);
 const availableImages = ref([]);
 const selectedImageIds = ref([]);
 const loading = ref(true);
+let isVisible = ref(false);
 
 const editorRef = ref(null);
 
 
-const accessories = async () => {
+const drones = async () => {
   try {
     droneDetails.value = await DroneService.getDrone(droneId.value);
     selectedImageIds.value = droneDetails.value.images.map(i => i.id) || [];
@@ -234,8 +238,6 @@ const cleanHTML = (html) => {
 
 const saveDrone = async () => {
   try {
-
-    console.log(droneDetails.value.subcategories)
     const updatedDrone = {
       ...droneDetails.value,
       description: cleanHTML(droneDetails.value.description),
@@ -245,13 +247,14 @@ const saveDrone = async () => {
       category_id: droneDetails.value.category_id,
       subcategories: toRaw(droneDetails.value.subcategories.map(s => s.id)),
     };
-    console.log(updatedDrone);
-    await DroneService.updateDrone(droneId.value, updatedDrone)
-    await router.push({name: 'drones'});
+    await DroneService.updateDrone(droneId.value, updatedDrone);
+    await showNotification(isVisible);
+    // await router.push({name: 'drones'});
   } catch (error) {
     console.error('Ошибка при сохранении аксессуара:', error);
     alert('Ошибка при сохранении аксессуара');
   }
+  window.location.href = '/drones';
 };
 
 const images = async () => {
@@ -292,7 +295,7 @@ const editorOptions = {
 };
 
 onMounted(async () => {
-  await accessories();
+  await drones();
   await fetchFilters();
   await fetchManufacturer();
   await images();
