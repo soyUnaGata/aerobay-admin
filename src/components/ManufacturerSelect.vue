@@ -2,7 +2,7 @@
   <div class="manufacturer-select" ref="selectContainer">
     <div class="selected-manufacturer" @click="toggleDropdown">
       <span v-if="selectedManufacturer">{{ selectedManufacturer.name }}</span>
-      <span v-else class="placeholder">Выберите производителя...</span>
+      <span v-else class="placeholder">Select manufacturer...</span>
       <span class="dropdown-arrow" :class="{ open: isOpen }">▼</span>
     </div>
 
@@ -10,7 +10,7 @@
       <input
           type="text"
           v-model="searchTerm"
-          placeholder="Поиск..."
+          placeholder="Search..."
           class="search-input"
       />
 
@@ -29,7 +29,7 @@
 
 <script>
 import {computed, onBeforeUnmount, onMounted, ref, watch} from 'vue';
-import axios from 'axios';
+import ManufacturesService from "@/services/manufactures-service.js";
 
 export default {
   props: {
@@ -48,8 +48,7 @@ export default {
     // Загружаем всех производителей
     const fetchManufacturers = async () => {
       try {
-        const response = await axios.get('https://aerobay.onrender.com/api/manufactures');
-        manufacturers.value = response.data.data;
+        manufacturers.value = await ManufacturesService.getAllManufactures();
         setSelectedManufacturer();
       } catch (error) {
         console.error(error);
