@@ -158,7 +158,6 @@ import FilterValueService from "@/services/filter-value-service.js";
 import ImageService from "@/services/image-service.js";
 import ManufacturesService from "@/services/manufactures-service.js";
 import AccessoryService from "@/services/accessory-service.js";
-import router from "@/router/index.js";
 import SuccessNotification from "@/components/SuccessNotification.vue";
 
 const accessoryDetails = ref({
@@ -219,12 +218,14 @@ const addAccessory = async () => {
     };
     await AccessoryService.addAccessory(newAccessory);
     showNotification();
-    await router.push({name: 'accessories'});
+    // await router.push({name: 'accessories'});
     alert('Аксессуар успешно добавлен');
   } catch (error) {
     console.error('Ошибка при добавлении аксессуара:', error);
     alert('Ошибка при добавлении аксессуара');
   }
+  window.location.href = '/accessories';
+
 };
 
 const images = async () => {
