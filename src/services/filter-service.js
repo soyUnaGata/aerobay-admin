@@ -22,7 +22,7 @@ class FilterService {
     }
 
     async updateFilter(id, name, category, group) {
-        return await api.post(`filter/${id}`, {
+        return await api.put(`filter/${id}`, {
             "name": name,
             "category_id": category,
             "group_id": group

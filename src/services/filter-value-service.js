@@ -8,14 +8,14 @@ class FilterValueService {
     }
 
     async updateFilter(id, value, filterId) {
-        return await api.post(`filter_values/${id}`, {
+        return await api.put(`filter_values/${id}`, {
             "value": value,
             "filter_id": filterId
         })
     }
 
     async postFilter(value, filterId) {
-        return await api.post(`filter_values}`, {
+        return await api.post(`filter_values`, {
             "value": value,
             "filter_id": filterId
         })
