@@ -12,7 +12,7 @@ class AccessoryService {
     }
 
     async updateAccessory(id, accessory) {
-        return await api.post(`accessories/${id}`, accessory);
+        return await api.put(`accessories/${id}`, accessory);
     }
 
     async getAccessory(id) {
