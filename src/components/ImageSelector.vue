@@ -1,6 +1,6 @@
 <template>
   <div class="image-selector">
-    <label class="block text-sm font-medium text-gray-700 mb-2">Выберите изображения для аксессуара:</label>
+    <label class="block text-sm font-medium text-gray-700 mb-2">Select image</label>
     <div class="grid grid-cols-4 gap-4">
       <div
           v-for="image in sortedImages"
