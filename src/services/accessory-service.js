@@ -12,7 +12,8 @@ class AccessoryService {
     }
 
     async updateAccessory(id, accessory) {
-        return await api.put(`accessories/${id}`, accessory);
+        return await api.put(`accessories/${id}`, accessory)
+            .catch((err) => err);
     }
 
     async getAccessory(id) {
