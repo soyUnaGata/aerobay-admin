@@ -5,6 +5,7 @@
   <div class="ml-64 flex-1 p-4 w-full">
     <Loader v-if="loading"/>
     <div class="p-4" v-show="!loading">
+      <RouterLink :to="{name: 'drones-add'}">Add</RouterLink>
       <div class="mb-4">
         <input
             v-model="searchTerm"
@@ -66,7 +67,7 @@
             :disabled="currentPage === 1"
             class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-full transition ease-in-out duration-150 disabled:bg-gray-50 disabled:cursor-not-allowed"
         >
-          Назад
+          Back
         </button>
         <span class="text-gray-600 font-medium">Page {{ currentPage }} from {{ totalPages }}</span>
         <button
@@ -74,7 +75,7 @@
             :disabled="currentPage === totalPages"
             class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-full transition ease-in-out duration-150 disabled:bg-gray-50 disabled:cursor-not-allowed"
         >
-          Вперед
+          Next
         </button>
       </div>
     </div>
