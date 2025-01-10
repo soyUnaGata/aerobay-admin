@@ -62,36 +62,6 @@
 
       <div class="margin-top flex flex-col gap-2.5">
         <div class="space-y-2">
-          <label class="block text-gray-700">Dimensions</label>
-          <input
-              v-model="droneDetails.dimensions"
-              class="input-field w-full"
-              type="text"
-              placeholder="Dimensions"
-          />
-        </div>
-
-        <div class="space-y-2">
-          <label class="block text-gray-700">Weight</label>
-          <input
-              v-model="droneDetails.weight"
-              class="input-field w-full"
-              type="text"
-              placeholder="Weight"
-          />
-        </div>
-
-        <div class="space-y-2">
-          <label class="block text-gray-700">Type</label>
-          <input
-              v-model="droneDetails.type"
-              class="input-field w-full"
-              type="text"
-              placeholder="Type"
-          />
-        </div>
-
-        <div class="space-y-2">
           <label class="block text-gray-700">Amount</label>
           <input
               v-model="droneDetails.amount"
@@ -108,10 +78,10 @@
         </div>
 
         <div class="space-y-2">
-          <label class="block text-gray-700">Category</label>
-          <CategorySelect
-              :selectedCategoryId="droneDetails.category_id"
-              @update:selectedCategoryId="updateCategoryId"
+          <label class="block text-gray-700">Group</label>
+          <GroupSelect
+              :selectedGroupId="droneDetails.group_id"
+              @update:selectedGroupId="updateGroupId"
           />
         </div>
 
@@ -150,7 +120,6 @@ import 'quill/dist/quill.snow.css';
 import 'vue-multiselect/dist/vue-multiselect.min.css';
 import Multiselect from '../components/Multiselect.vue'
 import ManufacturerSelect from '../components/ManufacturerSelect.vue'
-import CategorySelect from "@/components/CategorySelect.vue";
 import ImageSelector from "@/components/ImageSelector.vue";
 import Editor from '@tinymce/tinymce-vue'
 import Loader from "@/components/Loader.vue";
@@ -161,6 +130,7 @@ import ManufacturesService from "@/services/manufactures-service.js";
 import ImageService from "@/services/image-service.js";
 import SuccessNotification from "@/components/SuccessNotification.vue";
 import {showNotification} from "@/helpers/showNotification.js";
+import GroupSelect from "@/components/GroupSelect.vue";
 
 
 const route = useRoute();
@@ -212,8 +182,8 @@ const updateManufacturerId = (id) => {
   droneDetails.value.manufacturer_id = id;
 }
 
-const updateCategoryId = (id) => {
-  droneDetails.value.category_id = id;
+const updateGroupId = (id) => {
+  droneDetails.value.group_id = id;
 }
 
 const handleImageSelection = (newImageIds) => {
@@ -244,7 +214,7 @@ const saveDrone = async () => {
       images: selectedImageIds.value || [],
       filter_values: selectedFilters.value.map(f => f.id) || [],
       manufacturer_id: droneDetails.value.manufacturer_id,
-      category_id: droneDetails.value.category_id,
+      group_id: droneDetails.value.group_id,
       subcategories: toRaw(droneDetails.value.subcategories.map(s => s.id)),
     };
     await DroneService.updateDrone(droneId.value, updatedDrone);
