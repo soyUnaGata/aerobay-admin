@@ -159,6 +159,7 @@ import ImageService from "@/services/image-service.js";
 import ManufacturesService from "@/services/manufactures-service.js";
 import AccessoryService from "@/services/accessory-service.js";
 import SuccessNotification from "@/components/SuccessNotification.vue";
+import {showNotification} from "@/helpers/showNotification.js";
 
 const accessoryDetails = ref({
   title: '',
@@ -212,10 +213,8 @@ const addAccessory = async () => {
     await AccessoryService.addAccessory(newAccessory);
     await showNotification(isVisible);
     // await router.push({name: 'accessories'});
-    alert('Аксессуар успешно добавлен');
   } catch (error) {
     console.error('Ошибка при добавлении аксессуара:', error);
-    alert('Ошибка при добавлении аксессуара');
   }
   window.location.href = '/accessories';
 
