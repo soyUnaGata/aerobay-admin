@@ -37,6 +37,10 @@ export default {
       type: Number,
       default: null,
     },
+    modelValue: {
+      type: Number,
+      default: null,
+    },
   },
   setup(props, {emit}) {
     const groups = ref([]);
@@ -71,12 +75,20 @@ export default {
 
     const selectGroup = (group) => {
       isOpen.value = false;
-      emit("update:selectedGroupId", group.id);
+      emit("update:modelValue", group.id);
       setSelectedGroup(group.id);
     };
 
     watch(
         () => props.selectedGroupId,
+        (newValue) => {
+          setSelectedGroup(newValue);
+        },
+        {immediate: true}
+    );
+
+    watch(
+        () => props.modelValue,
         (newValue) => {
           setSelectedGroup(newValue);
         },
