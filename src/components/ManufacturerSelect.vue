@@ -45,45 +45,36 @@ export default {
     const searchTerm = ref('');
     const isOpen = ref(false);
 
-    // Загружаем всех производителей
     const fetchManufacturers = async () => {
       try {
         manufacturers.value = await ManufacturesService.getAllManufactures();
-        setSelectedManufacturer();
+        setSelectedManufacturer(props.selectedManufacturerId);
       } catch (error) {
-        console.error(error);
+        console.error('Failed to fetch manufacturers:', error);
       }
     };
 
-    // Устанавливаем выбранного производителя
-    const setSelectedManufacturer = () => {
-      if (props.selectedManufacturerId) {
+    const setSelectedManufacturer = (id) => {
+      if (id) {
         selectedManufacturer.value = manufacturers.value.find(
-            (manufacturer) => manufacturer.id === props.selectedManufacturerId
-        );
+            (manufacturer) => manufacturer.id === id
+        ) || null;
+      } else {
+        selectedManufacturer.value = null;
       }
     };
 
-    // Фильтруем производителей по поисковому запросу и перемещаем выбранного наверх
     const filteredManufacturers = computed(() => {
-      let filtered = manufacturers.value.filter((manufacturer) =>
+      return manufacturers.value.filter((manufacturer) =>
           manufacturer.name.toLowerCase().includes(searchTerm.value.toLowerCase())
       );
-
-      if (selectedManufacturer.value) {
-        filtered = [
-          selectedManufacturer.value,
-          ...filtered.filter((m) => m.id !== selectedManufacturer.value.id),
-        ];
-      }
-      return filtered;
     });
 
-    // Проверка, выбран ли производитель
-    const isSelected = (manufacturer) => selectedManufacturer.value?.id === manufacturer.id;
+    const isSelected = (manufacturer) =>
+        selectedManufacturer.value?.id === manufacturer.id;
 
-    // Выбор производителя
     const selectManufacturer = (manufacturer) => {
+      console.log('Выбранный производитель:', manufacturer);
       selectedManufacturer.value = manufacturer;
       emit('update:selectedManufacturerId', manufacturer.id);
       isOpen.value = false;
@@ -93,7 +84,6 @@ export default {
       isOpen.value = !isOpen.value;
     };
 
-    // Закрытие дропдауна при клике вне компонента
     const closeDropdown = (event) => {
       if (!selectContainer.value.contains(event.target)) {
         isOpen.value = false;
@@ -109,7 +99,12 @@ export default {
       document.removeEventListener('click', closeDropdown);
     });
 
-    watch(() => props.selectedManufacturerId, setSelectedManufacturer);
+    watch(
+        () => props.selectedManufacturerId,
+        (newId) => {
+          setSelectedManufacturer(newId);
+        }
+    );
 
     const selectContainer = ref(null);
 
