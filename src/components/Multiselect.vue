@@ -1,7 +1,7 @@
 <template>
   <div class="grouped-multiselect-container" ref="multiselectContainer">
     <div class="selected-tags" @click="toggleDropdown">
-      <span v-if="selectedOptions.length === 0" class="placeholder">Выберите опции...</span>
+      <span v-if="selectedOptions.length === 0" class="placeholder">{{ text }}</span>
       <span v-for="option in selectedOptions" :key="option.id" class="tag">
         {{ option.value }}
       </span>
@@ -12,7 +12,7 @@
       <input
           type="text"
           v-model="searchTerm"
-          placeholder="Поиск..."
+          placeholder="Search..."
           class="search-input"
       />
 
@@ -45,6 +45,9 @@ export default {
       type: Array,
       default: () => [],
     },
+    text: {
+      type: String,
+    }
   },
   emits: ['update:modelValue'],
   setup(props, {emit}) {
