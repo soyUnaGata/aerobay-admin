@@ -2,8 +2,8 @@
   <nav class="fixed left-0 top-0 h-screen w-64 bg-gray-800 text-white">
     <NavBar/>
   </nav>
-  <div class="ml-64 flex-1 p-4 w-full">
-    <Loader v-if="loading"/>
+  <Loader v-if="loading"/>
+  <div class="ml-64 flex-1 p-4 w-full" v-if="!loading">
     <h2 class="text-xl font-semibold">{{ accessoryDetails.title }}</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border p-4 rounded-lg shadow-md"
          :key="accessoryDetails.id">
@@ -44,6 +44,7 @@
               v-model="accessoryDetails.discount"
               class="input-field w-full"
               type="number"
+              value="0"
               placeholder="Discount"
           />
         </div>
@@ -161,6 +162,7 @@ import AccessoryService from "@/services/accessory-service.js";
 import ImageService from "@/services/image-service.js";
 import SuccessNotification from "@/components/SuccessNotification.vue";
 import {showNotification} from '@/helpers/showNotification.js'
+import CategoryService from "@/services/category-service.js";
 
 const route = useRoute();
 const accessoryId = ref(route.params.id);
@@ -199,6 +201,14 @@ const fetchFilters = async () => {
 const fetchManufacturer = async () => {
   try {
     manufacturers.value = await ManufacturesService.getAllManufactures();
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+const fetchCategories = async () => {
+  try {
+    categories.value = await CategoryService.getAllCategories();
   } catch (error) {
     console.log(error);
   }
@@ -291,6 +301,7 @@ onMounted(async () => {
   await accessories();
   await fetchFilters();
   await fetchManufacturer();
+  await fetchCategories();
   await images();
 });
 </script>
