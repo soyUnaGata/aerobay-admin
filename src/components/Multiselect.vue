@@ -33,7 +33,7 @@
 </template>
 
 <script>
-import {computed, onBeforeUnmount, onMounted, ref, watch} from 'vue';
+import {computed, onBeforeUnmount, onMounted, ref} from 'vue';
 
 export default {
   props: {
@@ -52,8 +52,12 @@ export default {
   emits: ['update:modelValue'],
   setup(props, {emit}) {
     const searchTerm = ref('');
-    const selectedOptions = ref([...props.modelValue]);
     const isOpen = ref(false);
+
+    const selectedOptions = computed({
+      get: () => props.modelValue,
+      set: (val) => emit('update:modelValue', val),
+    });
 
     const groupedOptions = computed(() => {
       return props.options.reduce((groups, option) => {
@@ -87,13 +91,16 @@ export default {
 
     const isSelected = option => selectedOptions.value.some(o => o.id === option.id);
 
-    const toggleSelection = option => {
-      if (isSelected(option)) {
+    const toggleSelection = (option) => {
+      const exists = selectedOptions.value.find(o => o.id === option.id);
+      if (exists) {
         selectedOptions.value = selectedOptions.value.filter(o => o.id !== option.id);
       } else {
-        selectedOptions.value.push(option);
+        const original = props.options.find(o => o.id === option.id);
+        if (original) {
+          selectedOptions.value = [...selectedOptions.value, original];
+        }
       }
-      emit('update:modelValue', selectedOptions.value);
     };
 
     const toggleDropdown = () => {
@@ -105,10 +112,6 @@ export default {
         isOpen.value = false;
       }
     };
-
-    watch(() => props.modelValue, (newVal) => {
-      selectedOptions.value = [...newVal];
-    });
 
     const multiselectContainer = ref(null);
     onMounted(() => {
