@@ -8,7 +8,15 @@ class DroneService {
     }
 
     async addDrone(drone) {
-        return await api.post(`drones`, drone)
+        try {
+            const response = await api.post(`drones`, drone);
+            return {success: true, data: response.data.drones};
+        } catch (err) {
+            return {
+                success: false,
+                error: err.response?.data?.errors || {message: 'Something went wrong'}
+            };
+        }
     }
 
     async updateDrone(id, drone) {

@@ -15,6 +15,9 @@
               type="text"
               placeholder="Drone name"
           />
+          <span v-if="serverErrors.title" class="text-red-500 text-sm">
+              {{ serverErrors.title[0] }}
+          </span>
         </div>
 
         <div class="space-y-2 col-span-2">
@@ -25,6 +28,9 @@
               :init="editorOptions"
               class="w-full border border-gray-300 rounded-md"
           />
+          <span v-if="serverErrors.description" class="text-red-500 text-sm">
+              {{ serverErrors.description[0] }}
+          </span>
         </div>
 
         <div class="space-y-2">
@@ -35,6 +41,9 @@
               type="number"
               placeholder="Drone price"
           />
+          <span v-if="serverErrors.price" class="text-red-500 text-sm">
+              {{ serverErrors.price[0] }}
+          </span>
         </div>
 
         <div class="space-y-2">
@@ -140,7 +149,7 @@ const droneDetails = ref({
   amount: null,
   manufacturer_id: null,
   group_id: null,
-  subcategories: [],
+  subcategories: [6],
   images: [],
   filter_values: []
 });
@@ -152,6 +161,7 @@ const availableImages = ref([]);
 const selectedImageIds = ref([]);
 const loading = ref(false);
 const manufacturers = ref([]);
+const serverErrors = ref([]);
 
 const fetchFilters = async () => {
   try {
@@ -171,20 +181,26 @@ const fetchManufacturer = async () => {
 
 const addDrone = async () => {
   try {
-    console.log(droneDetails.value);
+    serverErrors.value = {};
     const newDrone = {
       ...droneDetails.value,
       description: cleanHTML(droneDetails.value.description),
       images: selectedImageIds.value,
-      subcategories: toRaw(droneDetails.value.subcategories.map(s => s.id)),
-      filter_values: selectedFilters.value.map(f => f.id),
+      filter_values: toRaw(selectedFilters.value).map(f => f.id),
 
     };
-    await DroneService.addDrone(newDrone);
-    await showNotification(isVisible);
-    window.location.href = '/drones';
+    console.log(newDrone);
+    const result = await DroneService.addDrone(newDrone);
+    console.log(result);
+    if (!result.success) {
+      serverErrors.value = result.error;
+    } else {
+      isVisible.value = true;
+      await showNotification(isVisible);
+      window.location.href = '/drones';
+    }
   } catch (error) {
-    console.log(error.response.data);
+    serverErrors.value = error.response.data.errors;
   }
 };
 
