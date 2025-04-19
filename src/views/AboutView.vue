@@ -3,8 +3,8 @@
     <nav class="fixed left-0 top-0 h-screen w-64 bg-gray-800 text-white">
       <NavBar/>
     </nav>
-    <div class="ml-64 flex-1 p-4 w-full">
-      <Loader v-if="loading"/>
+    <Loader v-if="loading"/>
+    <div class="ml-64 flex-1 p-4 w-full" v-if="!loading">
       <h2 class="">Filters</h2>
       <RouterLink :to="{name: 'filter-add'}">Add</RouterLink>
       <div class="flex" name="fade" v-for="(filter, index) in filters" :key="filter.id" :id="filter.id"
@@ -93,7 +93,6 @@ watch(filters, (newValue, oldValue) => {
 
 onMounted(async () => {
   await fetchFilters();
-  console.log(filters.value)
 
 });
 
