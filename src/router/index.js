@@ -76,6 +76,11 @@ const router = createRouter({
             name: 'drones-edit',
             component: () => import('../views/DronesEditView.vue')
         },
+        {
+            path: '/categories',
+            name: 'categories',
+            component: () => import('../views/CategoryView.vue')
+        }
     ]
 })
 
