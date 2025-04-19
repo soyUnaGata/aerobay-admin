@@ -61,23 +61,7 @@
         </table>
       </div>
 
-      <div class="mt-6 flex justify-center items-center space-x-2">
-        <button
-            @click="changePage(currentPage - 1)"
-            :disabled="currentPage === 1"
-            class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-full transition ease-in-out duration-150 disabled:bg-gray-50 disabled:cursor-not-allowed"
-        >
-          Назад
-        </button>
-        <span class="text-gray-600 font-medium">Page {{ currentPage }} from {{ totalPages }}</span>
-        <button
-            @click="changePage(currentPage + 1)"
-            :disabled="currentPage === totalPages"
-            class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-full transition ease-in-out duration-150 disabled:bg-gray-50 disabled:cursor-not-allowed"
-        >
-          Вперед
-        </button>
-      </div>
+      <Pagination v-model:currentPage="currentPage" :products="filteredProducts" :items-per-page="itemsPerPage"/>
     </div>
 
   </div>
@@ -88,6 +72,7 @@ import {computed, onMounted, ref} from 'vue';
 import Loader from '@/components/Loader.vue';
 import NavBar from "@/components/NavBar.vue";
 import AccessoryService from '@/services/accessory-service.js'
+import Pagination from "@/components/Pagination.vue";
 
 const searchTerm = ref('');
 const currentPage = ref(1);
@@ -112,7 +97,6 @@ const filteredProducts = computed(() =>
     )
 );
 
-const totalPages = computed(() => Math.ceil(filteredProducts.value.length / itemsPerPage));
 
 const paginatedProducts = computed(() =>
     filteredProducts.value.slice(
@@ -121,14 +105,7 @@ const paginatedProducts = computed(() =>
     )
 );
 
-function changePage(page) {
-  if (page >= 1 && page <= totalPages.value) {
-    currentPage.value = page;
-  }
-}
-
 function editProduct(id) {
-  alert(`Редактировать товар: ${id}`);
 }
 
 async function deleteProduct(productId) {
@@ -142,8 +119,6 @@ async function deleteProduct(productId) {
 
 onMounted(async () => {
   await fetchAccessories();
-  console.log(products.value)
-
 });
 
 </script>
