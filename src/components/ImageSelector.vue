@@ -57,7 +57,6 @@ export default {
 
     const isSelected = (image) => selectedImages.value.some(selected => selected.id === image.id);
 
-    // Вычисляемое свойство для сортировки изображений
     const sortedImages = computed(() => {
       const selectedSet = new Set(selectedImages.value.map(img => img.id));
       const selected = props.images.filter(img => selectedSet.has(img.id));
