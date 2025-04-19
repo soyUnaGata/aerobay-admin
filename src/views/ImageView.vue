@@ -60,7 +60,7 @@ const fetchImages = async () => {
   }
 }
 const editImage = async (id) => {
-  await router.push({name: 'images', params: {id: id}});
+  await router.push({name: 'image-edit', params: {id: id}});
 }
 
 const addImage = async () => {
