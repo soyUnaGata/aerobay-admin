@@ -10,43 +10,46 @@
       <div class="flex flex-col gap-2.5">
         <div class="space-y-2">
           <label class="block text-gray-700">Title</label>
-          <input
-              v-model="accessoryDetails.title"
-              class="input-field w-full"
-              type="text"
-              placeholder="Name of accessory"
-          />
+          <Field name="title" class="input-field w-full" type="text" placeholder="Title"/>
+          <ErrorMessage name="title" class="text-red-500 text-sm"/>
+          <span v-if="serverErrors.title" class="text-red-500 text-sm">
+              {{ serverErrors.title[0] }}
+          </span>
         </div>
 
         <div class="space-y-2 col-span-2">
           <label class="block text-gray-700">Description</label>
-          <editor
-              api-key="odcydkl28d7x03wgsip6dxzkqtcx5olxt496s6x1nu87870j"
-              v-model="accessoryDetails.description"
-              :init="editorOptions"
-              class="w-full border border-gray-300 rounded-md"
-          />
+          <Field name="description" v-slot="{ value, errorMessage, handleChange }">
+            <editor
+                api-key="odcydkl28d7x03wgsip6dxzkqtcx5olxt496s6x1nu87870j"
+                :init="editorOptions"
+                :modelValue="value"
+                @update:modelValue="handleChange"
+            />
+            <span v-if="errorMessage" class="text-red-500 text-sm">{{ errorMessage }}</span>
+          </Field>
         </div>
 
         <div class="space-y-2">
           <label class="block text-gray-700">Price</label>
-          <input
-              v-model="accessoryDetails.price"
+          <Field
+              name="price"
               class="input-field w-full"
               type="number"
               placeholder="Price"
           />
+          <ErrorMessage name="price" class="text-red-500 text-sm"/>
         </div>
 
         <div class="space-y-2">
-          <label class="block text-gray-700">Discount</label>
-          <input
-              v-model="accessoryDetails.discount"
+          <label class="block text-gray-700">Discount (%)</label>
+          <Field
+              name="discount"
               class="input-field w-full"
               type="number"
-              value="0"
               placeholder="Discount"
           />
+          <ErrorMessage name="discount" class="text-red-500 text-sm"/>
         </div>
 
         <div class="space-y-2">
@@ -74,12 +77,13 @@
 
         <div class="space-y-2">
           <label class="block text-gray-700">Weight</label>
-          <input
-              v-model="accessoryDetails.weight"
+          <Field
+              name="weight"
               class="input-field w-full"
               type="text"
               placeholder="Weight"
           />
+          <ErrorMessage name="weight" class="text-red-500 text-sm"/>
         </div>
 
         <div class="space-y-2">
@@ -93,26 +97,35 @@
         </div>
 
         <div class="space-y-2">
-          <label class="block text-gray-700">Amount</label>
-          <input
-              v-model="accessoryDetails.amount"
+          <label class="block text-gray-700">Amount left</label>
+          <Field
+              name="amount"
               class="input-field w-full"
               type="number"
               placeholder="Amount"
           />
+          <ErrorMessage name="amount" class="text-red-500 text-sm"/>
         </div>
 
         <div class="space-y-2">
           <label class="block text-gray-700">Manufacturer</label>
-          <ManufacturerSelect :selectedManufacturerId="accessoryDetails.manufacturer_id"
-                              @update:selectedManufacturerId="updateManufacturerId"/>
+          <ManufacturerSelect
+              :selectedManufacturerId="accessoryDetails.manufacturer_id"
+              @update:selectedManufacturerId="(id) => {
+              updateManufacturerId(id)
+              setFieldValue('manufacturer_id', id)
+              }"
+          />
         </div>
 
         <div class="space-y-2">
           <label class="block text-gray-700">Category</label>
           <CategorySelect
               :selectedCategoryId="accessoryDetails.category_id"
-              @update:selectedCategoryId="updateCategoryId"
+              @update:selectedCategoryId="(id) => {
+               updateCategoryId(id)
+              setFieldValue('category_id', id)
+          }"
           />
         </div>
 
@@ -163,6 +176,8 @@ import ImageService from "@/services/image-service.js";
 import SuccessNotification from "@/components/SuccessNotification.vue";
 import {showNotification} from '@/helpers/showNotification.js'
 import CategoryService from "@/services/category-service.js";
+import {ErrorMessage, Field, useForm} from "vee-validate";
+import * as yup from 'yup';
 
 const route = useRoute();
 const accessoryId = ref(route.params.id);
@@ -174,8 +189,32 @@ const availableImages = ref([]);
 const selectedImageIds = ref([]);
 const loading = ref(true);
 let isVisible = ref(false);
+const serverErrors = ref([]);
 
 const editorRef = ref(null);
+
+const accessorySchema = yup.object({
+  title: yup.string().required('Title is required'),
+  description: yup.string().required('Description is required'),
+  price: yup.number().typeError('Price must be a number').required('Price is required'),
+  discount: yup.number().typeError('Discount must be a number').required('Discount is required'),
+  weight: yup
+      .number()
+      .typeError('Weight must be a number')
+      .required('Weight is required')
+      .notOneOf([0], 'Weight cannot be 0'),
+  amount: yup.number().typeError('Amount must be a number').required('Amount is required'),
+  manufacturer_id: yup.number().nullable().required('Manufacturer is required'),
+  category_id: yup.number().nullable().required('Category is required'),
+});
+
+const {handleSubmit, setFieldValue} = useForm({
+  validationSchema: accessorySchema,
+  initialValues: {
+    description: '',
+  },
+  validateOnMount: false,
+});
 
 const accessories = async () => {
   try {
@@ -184,7 +223,7 @@ const accessories = async () => {
     accessoryDetails.value.description = accessoryDetails.value.description || '';
     selectedFilters.value = accessoryDetails.value.filter_values || [];
   } catch (error) {
-    console.error('Ошибка при загрузке группы:', error);
+    console.error(error);
   } finally {
     loading.value = false;
   }
@@ -194,7 +233,7 @@ const fetchFilters = async () => {
   try {
     filters.value = await FilterValueService.getAllValues();
   } catch (error) {
-    console.error('Ошибка при загрузке подкатегорий:', error);
+    console.error(error);
   }
 };
 
@@ -235,26 +274,24 @@ const cleanHTML = (html) => {
 };
 
 
-const saveAccessory = async () => {
+const saveAccessory = handleSubmit(async (values) => {
   try {
+    serverErrors.value = {};
     const updatedAccessory = {
-      ...accessoryDetails.value,
-      description: cleanHTML(accessoryDetails.value.description),
+      ...values,
+      description: cleanHTML(values.description),
       images: selectedImageIds.value || [],
       filter_values: selectedFilters.value.map(f => f.id) || [],
-      manufacturer_id: accessoryDetails.value.manufacturer_id,
-      category_id: accessoryDetails.value.category_id,
       subcategories: toRaw(accessoryDetails.value.subcategories.map(s => s.id)),
     };
     await AccessoryService.updateAccessory(accessoryId.value, updatedAccessory);
+    loading.value = true;
     await showNotification(isVisible);
-    //await router.push({name: 'accessories'});
+    window.location.href = '/accessories';
   } catch (error) {
-    console.error('Ошибка при сохранении аксессуара:', error);
-    alert('Ошибка при сохранении аксессуара');
+    serverErrors.value = error.response?.data?.errors || {};
   }
-  window.location.href = '/accessories';
-};
+});
 
 const images = async () => {
   try {
@@ -268,19 +305,15 @@ const images = async () => {
 
 watchEffect(() => {
   if (accessoryDetails.value.filter_values?.length > 0) {
-    // Получаем Set из выбранных фильтров для проверки уникальности
     const selectedFilterIds = new Set(accessoryDetails.value.filter_values.map(f => f.value));
-    // Инициализируем комбинированный список с выбранными фильтрами
     combinedFilterOptions.value = [...accessoryDetails.value.filter_values];
     console.log(combinedFilterOptions.value);
-    // Добавляем фильтры, которых нет в выбранных
     filters.value.forEach(filter => {
       if (!selectedFilterIds.has(filter.value)) {
         combinedFilterOptions.value.push(filter);
       }
     });
   } else {
-    // Если выбранных фильтров нет, добавляем все доступные
     combinedFilterOptions.value = filters.value.map(f => [f.value, f.filter?.name]);
     console.log(filters.value);
   }
@@ -303,6 +336,18 @@ onMounted(async () => {
   await fetchManufacturer();
   await fetchCategories();
   await images();
+
+  setFieldValue('title', accessoryDetails.value.title);
+  setFieldValue('price', accessoryDetails.value.price);
+  setFieldValue('discount', accessoryDetails.value.discount);
+  setFieldValue('description', accessoryDetails.value.description || '');
+  setFieldValue('weight', accessoryDetails.value.weight);
+  setFieldValue('amount', accessoryDetails.value.amount);
+  setFieldValue('manufacturer_id', accessoryDetails.value.manufacturer_id);
+  setFieldValue('category_id', accessoryDetails.value.category_id);
+
+  selectedImageIds.value = accessoryDetails.value.images.map(i => i.id) || [];
+  selectedFilters.value = accessoryDetails.value.filter_values || [];
 });
 </script>
 
