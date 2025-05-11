@@ -7,21 +7,21 @@ class CategoryService {
             .catch((err) => null);
     }
 
-    async addGroup(group) {
-        return await api.post(`categories`, group)
+    async addCategory(category) {
+        return await api.post(`categories`, category)
     }
 
-    async updateGroup(id, group) {
-        return await api.put(`categories/${id}`, group);
+    async updateCategory(id, category) {
+        return await api.put(`categories/${id}`, category);
     }
 
-    async getGroup(id) {
+    async getCategory(id) {
         return await api.get(`categories/${id}`)
             .then((response) => response.data.data)
             .catch((err) => null);
     }
 
-    async removeGroup(id) {
+    async removeCategory(id) {
         return await api.delete(`categories/${id}`);
     }
 }
