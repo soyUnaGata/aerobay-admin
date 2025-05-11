@@ -15,19 +15,24 @@
               class="input-field w-full"
               type="text"
               placeholder="Title"
-              rules="required"
           />
           <ErrorMessage name="title" class="text-red-500 text-sm"/>
+          <span v-if="serverErrors.title" class="text-red-500 text-sm">
+            {{ serverErrors.title[0] }}
+          </span>
         </div>
 
         <div class="space-y-2 col-span-2">
           <label class="block text-gray-700">Description</label>
-          <editor
-              api-key="odcydkl28d7x03wgsip6dxzkqtcx5olxt496s6x1nu87870j"
-              v-model="accessoryDetails.description"
-              :init="editorOptions"
-              class="w-full border border-gray-300 rounded-md"
-          />
+          <Field name="description" v-slot="{ handleChange, errorMessage, value }">
+            <editor
+                api-key="odcydkl28d7x03wgsip6dxzkqtcx5olxt496s6x1nu87870j"
+                :init="editorOptions"
+                :modelValue="value"
+                @update:modelValue="handleChange"
+            />
+            <span v-if="errorMessage" class="text-red-500 text-sm">{{ errorMessage }}</span>
+          </Field>
         </div>
 
         <div class="space-y-2">
@@ -38,7 +43,6 @@
               class="input-field w-full"
               type="number"
               placeholder="Price"
-              rules="required"
           />
           <ErrorMessage name="price" class="text-red-500 text-sm"/>
         </div>
@@ -51,7 +55,6 @@
               class="input-field w-full"
               type="number"
               placeholder="Discount"
-              rules="required"
           />
           <ErrorMessage name="discount" class="text-red-500 text-sm"/>
         </div>
@@ -87,7 +90,6 @@
               class="input-field w-full"
               type="text"
               placeholder="Weight"
-              rules="required|numeric"
           />
           <ErrorMessage name="weight" class="text-red-500 text-sm"/>
         </div>
@@ -110,23 +112,30 @@
               class="input-field w-full"
               type="number"
               placeholder="Amount"
-              rules="required"
           />
           <ErrorMessage name="amount" class="text-red-500 text-sm"/>
         </div>
 
         <div class="space-y-2">
           <label class="block text-gray-700">Manufacturer</label>
-          <ManufacturerSelect
-              v-model:selectedManufacturerId="accessoryDetails.manufacturer_id"
-          />
+          <Field name="manufacturer_id" v-slot="{ field, errorMessage }">
+            <ManufacturerSelect
+                v-model:selectedManufacturerId="field.value"
+                @update:selectedManufacturerId="field.onChange"
+            />
+            <span v-if="errorMessage" class="text-red-500 text-sm">{{ errorMessage }}</span>
+          </Field>
         </div>
 
         <div class="space-y-2">
           <label class="block text-gray-700">Category</label>
-          <CategorySelect
-              v-model:selectedCategoryId="accessoryDetails.category_id"
-          />
+          <Field name="category_id" v-slot="{ field, errorMessage }">
+            <CategorySelect
+                v-model:selectedCategoryId="field.value"
+                @update:selectedCategoryId="field.onChange"
+            />
+            <span v-if="errorMessage" class="text-red-500 text-sm">{{ errorMessage }}</span>
+          </Field>
         </div>
 
         <div class="space-y-2">
@@ -177,6 +186,8 @@ import SuccessNotification from "@/components/SuccessNotification.vue";
 import {showNotification} from "@/helpers/showNotification.js";
 import CategoryService from "@/services/category-service.js";
 import {defineRule, ErrorMessage, Field, useForm} from "vee-validate";
+import * as yup from 'yup';
+
 
 const accessoryDetails = ref({
   title: '',
@@ -203,6 +214,30 @@ const selectedImageIds = ref([]);
 const loading = ref(false);
 const manufacturers = ref([]);
 const categories = ref([]);
+const serverErrors = ref([]);
+
+const accessorySchema = yup.object({
+  title: yup.string().required('Title is required'),
+  description: yup.string().required('Description is required'),
+  price: yup.number().typeError('Price must be a number').required('Price is required'),
+  discount: yup.number().typeError('Discount must be a number').required('Discount is required'),
+  weight: yup
+      .number()
+      .typeError('Weight must be a number')
+      .required('Weight is required')
+      .notOneOf([0], 'Weight cannot be 0'),
+  amount: yup.number().typeError('Amount must be a number').required('Amount is required'),
+  manufacturer_id: yup.number().nullable().required('Manufacturer is required'),
+  category_id: yup.number().nullable().required('Category is required'),
+});
+
+const {handleSubmit, setFieldValue} = useForm({
+  validationSchema: accessorySchema,
+  initialValues: {
+    description: '',
+  },
+  validateOnMount: false,
+});
 
 const fetchFilters = async () => {
   try {
@@ -228,21 +263,11 @@ const fetchCategories = async () => {
   }
 }
 
-const {validate} = useForm();
-
-const addAccessory = async () => {
-
-  const result = await validate(); // Manually trigger validation
-
-  if (!result.valid) {
-    console.log('Validation failed:', result.errors); // Debugging
-    return; // Stop if validation fails
-  }
-
+const addAccessory = handleSubmit(async (values) => {
   try {
     const newAccessory = {
-      ...accessoryDetails.value,
-      description: cleanHTML(accessoryDetails.value.description),
+      ...values,
+      description: cleanHTML(values.description),
       //images: selectedImageIds.value,
       images: [],
       //subcategories: toRaw(accessoryDetails.value.subcategories.map(s => s.id)),
@@ -256,9 +281,9 @@ const addAccessory = async () => {
     window.location.href = '/accessories';
     // await router.push({name: 'accessories'});
   } catch (error) {
-    console.error('Ошибка при добавлении аксессуара:', error);
+    serverErrors.value = error.response.data.errors;
   }
-};
+});
 
 const images = async () => {
   try {
@@ -284,8 +309,6 @@ const cleanHTML = (html) => {
 
 
 defineRule('required', value => {
-  console.log('We are in valid!')
-  console.log(value)
   if (value === undefined || value === null || value === '') {
     return 'This field could not be empty';
   }
