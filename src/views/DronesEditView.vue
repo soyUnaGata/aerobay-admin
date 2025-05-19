@@ -23,12 +23,6 @@
 
         <div class="space-y-2 col-span-2">
           <label class="block text-gray-700">Description</label>
-          <!--          <editor-->
-          <!--              api-key="odcydkl28d7x03wgsip6dxzkqtcx5olxt496s6x1nu87870j"-->
-          <!--              v-model="droneDetails.description"-->
-          <!--              :init="editorOptions"-->
-          <!--              class="w-full border border-gray-300 rounded-md"-->
-          <!--          />-->
           <Field name="description" v-slot="{ value, errorMessage, handleChange }">
             <editor
                 api-key="odcydkl28d7x03wgsip6dxzkqtcx5olxt496s6x1nu87870j"
