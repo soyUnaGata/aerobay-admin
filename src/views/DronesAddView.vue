@@ -9,88 +9,94 @@
       <div class="flex flex-col gap-2.5">
         <div class="space-y-2">
           <label class="block text-gray-700">Title</label>
-          <input
-              v-model="droneDetails.title"
+          <Field
+              name="title"
               class="input-field w-full"
               type="text"
               placeholder="Drone name"
           />
-          <span v-if="serverErrors.title" class="text-red-500 text-sm">
-              {{ serverErrors.title[0] }}
-          </span>
+          <ErrorMessage name="title" class="text-red-500 text-sm"/>
         </div>
 
         <div class="space-y-2 col-span-2">
           <label class="block text-gray-700">Description</label>
-          <editor
-              api-key="odcydkl28d7x03wgsip6dxzkqtcx5olxt496s6x1nu87870j"
-              v-model="droneDetails.description"
-              :init="editorOptions"
-              class="w-full border border-gray-300 rounded-md"
-          />
-          <span v-if="serverErrors.description" class="text-red-500 text-sm">
-              {{ serverErrors.description[0] }}
-          </span>
+          <Field name="description" v-slot="{ handleChange, errorMessage, value }">
+            <editor
+                api-key="odcydkl28d7x03wgsip6dxzkqtcx5olxt496s6x1nu87870j"
+                :init="editorOptions"
+                :modelValue="value"
+                @update:modelValue="handleChange"
+            />
+            <span v-if="errorMessage" class="text-red-500 text-sm">{{ errorMessage }}</span>
+          </Field>
         </div>
 
         <div class="space-y-2">
           <label class="block text-gray-700">Price</label>
-          <input
-              v-model="droneDetails.price"
+          <Field
+              name="price"
               class="input-field w-full"
               type="number"
-              placeholder="Drone price"
+              placeholder="Price"
           />
-          <span v-if="serverErrors.price" class="text-red-500 text-sm">
-              {{ serverErrors.price[0] }}
-          </span>
+          <ErrorMessage name="price" class="text-red-500 text-sm"/>
         </div>
 
         <div class="space-y-2">
           <label class="block text-gray-700">Discount (%)</label>
-          <input
-              v-model="droneDetails.discount"
+          <Field
+              name="discount"
               class="input-field w-full"
               type="number"
-              placeholder="Discount in percent"
+              placeholder="Discount"
           />
+          <ErrorMessage name="discount" class="text-red-500 text-sm"/>
         </div>
 
         <div class="space-y-2">
           <label class="block text-gray-700">Image URL</label>
-          <input
-              v-model="droneDetails.image_url"
+          <Field
+              name="image_url"
               class="input-field w-full"
               type="text"
               placeholder="Image URL"
           />
+          <ErrorMessage name="image_url" class="text-red-500 text-sm"/>
         </div>
-
       </div>
 
       <div class="flex flex-col gap-2.5">
         <div class="space-y-2">
           <label class="block text-gray-700">Amount</label>
-          <input
-              v-model="droneDetails.amount"
+          <Field
+              name="amount"
               class="input-field w-full"
               type="number"
               placeholder="Amount"
           />
+          <ErrorMessage name="amount" class="text-red-500 text-sm"/>
         </div>
 
         <div class="space-y-2">
           <label class="block text-gray-700">Manufacturer</label>
-          <ManufacturerSelect
-              v-model:selectedManufacturerId="droneDetails.manufacturer_id"
-          />
+          <Field name="manufacturer_id" v-slot="{ field, errorMessage }">
+            <ManufacturerSelect
+                v-model:selectedManufacturerId="field.value"
+                @update:selectedManufacturerId="field.onChange"
+            />
+            <span v-if="errorMessage" class="text-red-500 text-sm">{{ errorMessage }}</span>
+          </Field>
         </div>
 
         <div class="space-y-2">
           <label class="block text-gray-700">Group</label>
-          <GroupSelect
-              v-model="droneDetails.group_id"
-          />
+          <Field name="group_id" v-slot="{ field, errorMessage }">
+            <GroupSelect
+                v-model="field.value"
+                @update:modelValue="field.onChange"
+            />
+            <span v-if="errorMessage" class="text-red-500 text-sm">{{ errorMessage }}</span>
+          </Field>
         </div>
 
         <div class="space-y-2">
@@ -139,20 +145,8 @@ import SuccessNotification from "@/components/SuccessNotification.vue";
 import {showNotification} from "@/helpers/showNotification.js";
 import GroupSelect from "@/components/GroupSelect.vue";
 import DroneService from "@/services/drone-service.js";
-
-const droneDetails = ref({
-  title: '',
-  description: '',
-  price: null,
-  discount: null,
-  image_url: '',
-  amount: null,
-  manufacturer_id: null,
-  group_id: null,
-  subcategories: [6],
-  images: [],
-  filter_values: []
-});
+import {ErrorMessage, Field, useForm} from "vee-validate";
+import * as yup from "yup";
 
 let isVisible = ref(false);
 const filters = ref([]);
@@ -163,11 +157,38 @@ const loading = ref(false);
 const manufacturers = ref([]);
 const serverErrors = ref([]);
 
+const dronesSchema = yup.object({
+  title: yup.string().required('Title is required'),
+  description: yup.string().required('Description is required'),
+  price: yup.number().typeError('Price must be a number').required('Price is required'),
+  discount: yup.number().typeError('Discount must be a number').required('Discount is required'),
+  amount: yup.number().typeError('Amount must be a number').required('Amount is required'),
+  manufacturer_id: yup.number().nullable().required('Manufacturer is required'),
+  group_id: yup.number().nullable().required('Category is required'),
+});
+
+const {handleSubmit, setFieldValue} = useForm({
+  validationSchema: dronesSchema,
+  initialValues: {
+    title: '',
+    description: '',
+    price: null,
+    discount: null,
+    amount: null,
+    manufacturer_id: null,
+    subcategories: [6],
+    group_id: null,
+    image_url: '',
+    filter_values: []
+  },
+  validateOnMount: false,
+});
+
 const fetchFilters = async () => {
   try {
     filters.value = await FilterValueService.getAllValues();
   } catch (error) {
-    console.error('Ошибка при загрузке подкатегорий:', error);
+    console.error(error);
   }
 };
 
@@ -179,19 +200,17 @@ const fetchManufacturer = async () => {
   }
 }
 
-const addDrone = async () => {
+const addDrone = handleSubmit(async (values) => {
   try {
     serverErrors.value = {};
     const newDrone = {
-      ...droneDetails.value,
-      description: cleanHTML(droneDetails.value.description),
+      ...values,
+      description: cleanHTML(values.description),
       images: selectedImageIds.value,
       filter_values: toRaw(selectedFilters.value).map(f => f.id),
 
     };
-    console.log(newDrone);
     const result = await DroneService.addDrone(newDrone);
-    console.log(result);
     if (!result.success) {
       serverErrors.value = result.error;
     } else {
@@ -202,7 +221,7 @@ const addDrone = async () => {
   } catch (error) {
     serverErrors.value = error.response.data.errors;
   }
-};
+});
 
 const images = async () => {
   try {
@@ -247,11 +266,4 @@ onMounted(async () => {
   box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.4);
 }
 
-.ql-container {
-  height: 250px;
-}
-
-.margin-top {
-  margin-top: 0;
-}
 </style>
