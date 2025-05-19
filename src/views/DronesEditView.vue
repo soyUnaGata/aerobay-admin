@@ -2,50 +2,64 @@
   <nav class="fixed left-0 top-0 h-screen w-64 bg-gray-800 text-white">
     <NavBar/>
   </nav>
-  <div class="ml-64 flex-1 p-4 w-full">
+  <div class="w-screen">
     <Loader v-if="loading"/>
+  </div>
+  <div class="ml-64 flex-1 p-4 w-full" v-if="!loading">
     <h2 class="text-xl font-semibold">{{ droneDetails.title }}</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border p-4 rounded-lg shadow-md"
          :key="droneDetails.id">
       <div class="flex flex-col gap-2.5">
         <div class="space-y-2">
           <label class="block text-gray-700">Title</label>
-          <input
-              v-model="droneDetails.title"
+          <Field
+              name="title"
               class="input-field w-full"
               type="text"
               placeholder="Name of accessory"
           />
+          <ErrorMessage name="title" class="text-red-500 text-sm"/>
         </div>
 
         <div class="space-y-2 col-span-2">
           <label class="block text-gray-700">Description</label>
-          <editor
-              api-key="odcydkl28d7x03wgsip6dxzkqtcx5olxt496s6x1nu87870j"
-              v-model="droneDetails.description"
-              :init="editorOptions"
-              class="w-full border border-gray-300 rounded-md"
-          />
+          <!--          <editor-->
+          <!--              api-key="odcydkl28d7x03wgsip6dxzkqtcx5olxt496s6x1nu87870j"-->
+          <!--              v-model="droneDetails.description"-->
+          <!--              :init="editorOptions"-->
+          <!--              class="w-full border border-gray-300 rounded-md"-->
+          <!--          />-->
+          <Field name="description" v-slot="{ value, errorMessage, handleChange }">
+            <editor
+                api-key="odcydkl28d7x03wgsip6dxzkqtcx5olxt496s6x1nu87870j"
+                :init="editorOptions"
+                :modelValue="value"
+                @update:modelValue="handleChange"
+            />
+            <span v-if="errorMessage" class="text-red-500 text-sm">{{ errorMessage }}</span>
+          </Field>
         </div>
 
         <div class="space-y-2">
           <label class="block text-gray-700">Price</label>
-          <input
-              v-model="droneDetails.price"
+          <Field
+              name="price"
               class="input-field w-full"
               type="number"
               placeholder="Price"
           />
+          <ErrorMessage name="price" class="text-red-500 text-sm"/>
         </div>
 
         <div class="space-y-2">
           <label class="block text-gray-700">Discount</label>
-          <input
-              v-model="droneDetails.discount"
+          <Field
+              name="discount"
               class="input-field w-full"
               type="number"
               placeholder="Discount"
           />
+          <ErrorMessage name="discount" class="text-red-500 text-sm"/>
         </div>
 
         <div class="space-y-2">
@@ -63,12 +77,13 @@
       <div class="margin-top flex flex-col gap-2.5">
         <div class="space-y-2">
           <label class="block text-gray-700">Amount</label>
-          <input
-              v-model="droneDetails.amount"
+          <Field
+              name="amount"
               class="input-field w-full"
               type="number"
               placeholder="Amount"
           />
+          <ErrorMessage name="amount" class="text-red-500 text-sm"/>
         </div>
 
         <div class="space-y-2">
@@ -131,6 +146,8 @@ import ImageService from "@/services/image-service.js";
 import SuccessNotification from "@/components/SuccessNotification.vue";
 import {showNotification} from "@/helpers/showNotification.js";
 import GroupSelect from "@/components/GroupSelect.vue";
+import {ErrorMessage, Field, useForm} from "vee-validate";
+import * as yup from "yup";
 
 
 const route = useRoute();
@@ -147,6 +164,23 @@ let isVisible = ref(false);
 
 const editorRef = ref(null);
 
+const dronesSchema = yup.object({
+  title: yup.string().required('Title is required'),
+  description: yup.string().required('Description is required'),
+  price: yup.number().typeError('Price must be a number').required('Price is required'),
+  discount: yup.number().typeError('Discount must be a number').required('Discount is required'),
+  amount: yup.number().typeError('Amount must be a number').required('Amount is required'),
+  manufacturer_id: yup.number().nullable().required('Manufacturer is required'),
+  group_id: yup.number().nullable().required('Category is required'),
+});
+
+const {handleSubmit, setFieldValue} = useForm({
+  validationSchema: dronesSchema,
+  initialValues: {
+    description: '',
+  },
+  validateOnMount: false,
+});
 
 const drones = async () => {
   try {
@@ -188,7 +222,6 @@ const updateGroupId = (id) => {
 
 const handleImageSelection = (newImageIds) => {
   selectedImageIds.value = newImageIds;
-  console.log('Выбранные изображения:', selectedImageIds.value);
 };
 
 const onEditorChange = ({quill, html, text}) => {
@@ -206,11 +239,11 @@ const cleanHTML = (html) => {
   return tempDiv.textContent || tempDiv.innerText || "";
 };
 
-const saveDrone = async () => {
+const saveDrone = handleSubmit(async (values) => {
   try {
     const updatedDrone = {
-      ...droneDetails.value,
-      description: cleanHTML(droneDetails.value.description),
+      ...values,
+      description: cleanHTML(values.description),
       images: selectedImageIds.value || [],
       filter_values: selectedFilters.value.map(f => f.id) || [],
       manufacturer_id: droneDetails.value.manufacturer_id,
@@ -224,8 +257,8 @@ const saveDrone = async () => {
     console.error('Ошибка при сохранении аксессуара:', error);
     alert('Ошибка при сохранении аксессуара');
   }
-  window.location.href = '/drones';
-};
+  // window.location.href = '/drones';
+});
 
 const images = async () => {
   try {
@@ -269,6 +302,17 @@ onMounted(async () => {
   await fetchFilters();
   await fetchManufacturer();
   await images();
+
+  setFieldValue('title', droneDetails.value.title);
+  setFieldValue('price', droneDetails.value.price);
+  setFieldValue('discount', droneDetails.value.discount);
+  setFieldValue('description', droneDetails.value.description || '');
+  setFieldValue('amount', droneDetails.value.amount);
+  setFieldValue('manufacturer_id', droneDetails.value.manufacturer_id);
+  setFieldValue('group_id', droneDetails.value.group_id);
+
+  selectedImageIds.value = droneDetails.value.images.map(i => i.id) || [];
+  selectedFilters.value = droneDetails.value.filter_values || [];
 });
 </script>
 

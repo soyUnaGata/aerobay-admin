@@ -190,6 +190,7 @@ const selectedImageIds = ref([]);
 const loading = ref(true);
 let isVisible = ref(false);
 const serverErrors = ref([]);
+const categories = ref();
 
 const editorRef = ref(null);
 
