@@ -122,11 +122,8 @@ const saveCategory = async (name, description) => {
 }
 
 const deleteCategory = async (id) => {
-  try {
-    await CategoryService.removeCategory(id);
-  } catch (error) {
-    console.log(error)
-  }
+  await CategoryService.removeCategory(id);
+  await fetchCategories();
 }
 
 onMounted(async () => {
