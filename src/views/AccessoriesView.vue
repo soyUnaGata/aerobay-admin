@@ -4,11 +4,14 @@
   </nav>
   <div class="ml-64 flex-1 p-4 w-full">
     <Loader v-if="loading"/>
-    <div class="p-4" v-show="!loading">
+    <div class="justify-end flex">
       <RouterLink :to="{name: 'accessories-add'}"
                   class="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
         Add
       </RouterLink>
+    </div>
+
+    <div class="mt-6" v-show="!loading">
       <div class="mb-4">
         <input
             v-model="searchTerm"
