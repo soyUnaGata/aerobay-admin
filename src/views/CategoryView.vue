@@ -7,8 +7,13 @@
   </div>
   <div class="flex-1 p-4 w-full" v-if="!loading">
     <div class="ml-64 flex-1 p-4 w-full">
-      <button @click="addCategory">Add</button>
-      <div class="overflow-hidden rounded-lg shadow-lg w-full">
+      <div class="justify-end flex">
+        <button @click="addCategory"
+                class="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+          Add
+        </button>
+      </div>
+      <div class="overflow-hidden rounded-lg shadow-lg w-full mt-6">
         <table class="min-w-full bg-white border border-gray-200 rounded-lg">
           <thead>
           <tr class="bg-gray-50 text-left text-gray-600">
@@ -24,8 +29,8 @@
               :key="category.id"
               class="hover:bg-gray-100 transition duration-200 ease-in-out border-b"
           >
-            <td class="ppy-3 px-4 text-gray-700 ">{{ index + 1 }}</td>
-            <td class="ppy-3 px-4 text-gray-700 w-5/6">{{ category.name }}</td>
+            <td class="ppy-3 px-4 text-gray-700">{{ index + 1 }}</td>
+            <td class="ppy-3 px-4 text-gray-700 w-1/4">{{ category.name }}</td>
             <td class="ppy-3 px-4 text-gray-700 w-5/6 max-w-[300px] max-h-[60px] overflow-hidden text-ellipsis whitespace-nowrap">
               {{ category.description }}
             </td>
