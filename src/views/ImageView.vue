@@ -9,7 +9,10 @@
            v-show="!loading">
         <h2 class="sr-only">Images</h2>
         <div>
-          <button type="button" @click="addImage()">Add</button>
+          <button type="button" @click="addImage()"
+                  class="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+            Add
+          </button>
         </div>
 
         <div
