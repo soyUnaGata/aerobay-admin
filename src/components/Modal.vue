@@ -56,13 +56,13 @@ watch(itemDescription, (val) => {
                           v-model="itemName"
                           type="text"
                           class="input-field w-full"
-                          placeholder="Category name"
+                          placeholder="Name"
                       />
                       <label class="block text-gray-700">Description</label>
                       <textarea
                           v-model="itemDescription"
                           class="input-field w-full"
-                          placeholder="Category description"
+                          placeholder="Description"
                       ></textarea>
                     </div>
                   </div>
