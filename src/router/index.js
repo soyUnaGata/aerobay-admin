@@ -80,6 +80,11 @@ const router = createRouter({
             path: '/categories',
             name: 'categories',
             component: () => import('../views/CategoryView.vue')
+        },
+        {
+            path: '/groups',
+            name: 'groups',
+            component: () => import('../views/GroupView.vue')
         }
     ]
 })
