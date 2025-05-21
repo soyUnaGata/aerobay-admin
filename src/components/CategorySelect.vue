@@ -29,7 +29,7 @@
 
 <script>
 import {computed, onBeforeUnmount, onMounted, ref, watch} from "vue";
-import axios from "axios";
+import CategoryService from "@/services/category-service.js";
 
 export default {
   props: {
@@ -52,9 +52,7 @@ export default {
 
     const fetchCategories = async () => {
       try {
-        const response = await axios.get(
-            "https://aerobay.onrender.com/api/categories"
-        );
+        const response = await CategoryService.getAllCategories();
         categories.value = response.data.data;
         setSelectedCategory(props.selectedCategoryId);
       } catch (error) {
