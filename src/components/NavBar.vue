@@ -38,7 +38,7 @@
             </a>
           </li>
           <li>
-            <a href="#" class="flex items-center space-x-4 p-2 rounded-lg hover:bg-gray-800">
+            <a href="/manufactures" class="flex items-center space-x-4 p-2 rounded-lg hover:bg-gray-800">
               <span class="text-gray-400">🔧</span>
               <span>Manufacturer</span>
             </a>
