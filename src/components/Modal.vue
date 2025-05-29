@@ -9,7 +9,11 @@ const props = defineProps({
   title: String,
   isOpen: Boolean,
   modelValue: String,
-  modelDescription: String
+  modelDescription: String,
+  showDescription: {
+    type: Boolean,
+    default: true
+  }
 })
 
 const emit = defineEmits(['closeModal', 'saveItem', 'update:modelValue', 'update:modelDescription'])
@@ -58,8 +62,9 @@ watch(itemDescription, (val) => {
                           class="input-field w-full"
                           placeholder="Name"
                       />
-                      <label class="block text-gray-700">Description</label>
+                      <label v-if="showDescription" class="block text-gray-700">Description</label>
                       <textarea
+                          v-if="showDescription"
                           v-model="itemDescription"
                           class="input-field w-full"
                           placeholder="Description"
