@@ -13,7 +13,7 @@ class ImageService {
     }
 
     async postImages(name, value) {
-        return await api.put('images', {
+        return await api.post('images', {
             name: name,
             url: value,
         })
