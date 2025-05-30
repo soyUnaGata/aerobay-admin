@@ -3,6 +3,7 @@ import {ref} from "vue";
 import NavBar from "@/components/NavBar.vue";
 import ImageService from "@/services/image-service.js";
 import {showNotification} from "@/helpers/showNotification.js";
+import ReturnButton from "@/components/ReturnButton.vue";
 
 let isVisible = ref(false);
 const images = ref([
@@ -10,6 +11,45 @@ const images = ref([
     url: '',
   },
 ]);
+const imageName = ref('');
+const errors = ref({
+  imageName: '',
+  urls: [],
+});
+
+const handleSubmit = async () => {
+  errors.value.imageName = '';
+  errors.value.urls = [];
+
+  let isValid = true;
+
+  if (!imageName.value.trim()) {
+    errors.value.imageName = 'Image name cannot be empty.';
+    isValid = false;
+  }
+
+  images.value.forEach((img, index) => {
+    if (!img.url.trim()) {
+      errors.value.urls[index] = 'URL cannot be empty.';
+      isValid = false;
+    } else {
+      errors.value.urls[index] = '';
+    }
+  });
+
+  if (!isValid) return;
+
+  try {
+    for (const value of images.value) {
+      await ImageService.postImages(imageName.value.trim(), value.url.trim());
+    }
+    await showNotification(isVisible);
+  } catch (error) {
+    console.error("Error saving image:", error);
+  }
+  window.location.href = '/images';
+};
+
 
 const addNewValue = () => {
   images.value.push({url: ''});
@@ -21,22 +61,6 @@ const removeValue = (index) => {
   }
 };
 
-const imageName = ref('');
-
-const handleSubmit = async () => {
-  try {
-    for (const value of images.value) {
-      await ImageService.postImages(imageName.value, value.url);
-    }
-    await showNotification(isVisible);
-    // await router.push({name: 'images'});
-
-  } catch (error) {
-    console.error("Error saving image:", error);
-  }
-  window.location.href = '/images';
-};
-
 
 </script>
 
@@ -46,7 +70,7 @@ const handleSubmit = async () => {
       <NavBar/>
     </nav>
     <div class="ml-64 flex-1 p-4">
-      <RouterLink :to="{ name: 'images'}">Back</RouterLink>
+      <ReturnButton :url-name="{name: 'images'}"/>
       <div class="flex items-center flex-col gap-2 w-full">
         <label for="filterName" class="block text-sm font-medium leading-6 text-gray-900 mb-2">
           Image Name
@@ -57,14 +81,18 @@ const handleSubmit = async () => {
                   placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                placeholder="Enter image name"
                v-model="imageName"/>
+        <p v-if="errors.imageName" class="text-red-600 text-sm">{{ errors.imageName }}</p>
 
         <div class="mt-4 w-full">
           <div class="relative flex gap-2.5 mt-2" v-for="(value, index) in images" :key="index">
-            <input type="text"
-                   class="block rounded-md border-0 py-1.5 pl-7 w-full text-gray-900 ring-1 ring-inset ring-gray-300
+            <div class="w-full">
+              <input type="text"
+                     class="block rounded-md border-0 py-1.5 pl-7 w-full text-gray-900 ring-1 ring-inset ring-gray-300
                       placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                   placeholder="Enter URL"
-                   v-model="value.url"/>
+                     placeholder="Enter URL"
+                     v-model="value.url"/>
+              <p v-if="errors.urls[index]" class="text-red-600 text-sm mt-2 text-center">{{ errors.urls[index] }}</p>
+            </div>
 
             <button v-if="index === images.length - 1" @click="addNewValue"
                     class="inset-y-0 justify-center right-0 flex items-center px-3 bg-green-500 hover:bg-green-600 active:bg-green-700
@@ -79,7 +107,7 @@ const handleSubmit = async () => {
           </div>
         </div>
         <button type="button" @click="handleSubmit"
-                class="mt-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+                class="mt-4 bg-[#005960] hover:bg-[#008f99] text-white px-4 py-2 rounded">
           Save
         </button>
       </div>
@@ -87,6 +115,3 @@ const handleSubmit = async () => {
   </div>
 </template>
 
-<style scoped>
-
-</style>
