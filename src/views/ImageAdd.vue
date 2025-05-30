@@ -27,7 +27,6 @@ const handleSubmit = async () => {
   try {
     for (const value of images.value) {
       await ImageService.postImages(imageName.value, value.url);
-      console.log(imageName.value);
     }
     await showNotification(isVisible);
     // await router.push({name: 'images'});
@@ -35,7 +34,7 @@ const handleSubmit = async () => {
   } catch (error) {
     console.error("Error saving image:", error);
   }
-  // window.location.href = '/images';
+  window.location.href = '/images';
 };
 
 
