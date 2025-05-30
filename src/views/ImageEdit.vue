@@ -5,6 +5,7 @@ import NavBar from "@/components/NavBar.vue";
 import ImageService from "@/services/image-service.js";
 import SuccessNotification from "@/components/SuccessNotification.vue";
 import {showNotification} from "@/helpers/showNotification.js";
+import ReturnButton from "@/components/ReturnButton.vue";
 
 const route = useRoute();
 const imageId = ref(route.params.id);
@@ -13,7 +14,6 @@ const isVisible = ref(false);
 
 const fetchImages = async () => {
   imageValue.value = await ImageService.getImage(imageId.value);
-  console.log(imageValue.value);
 }
 
 const handleSubmit = async () => {
@@ -37,7 +37,7 @@ onMounted(async () => {
       <NavBar/>
     </nav>
     <div class="ml-64 flex-1 p-4">
-      <RouterLink :to="{ name: 'images'}">Back</RouterLink>
+      <ReturnButton :url-name="{name: 'images'}"/>
       <div class="flex items-centre flex-col gap-2 w-full ">
         <label for="filterName" class="block text-sm font-medium leading-6 text-gray-900 mb-2">
           Image
@@ -61,7 +61,7 @@ onMounted(async () => {
                        placeholder="Enter value"/>
               </div>
             </div>
-            <button type="submit" class="mt-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+            <button type="submit" class="mt-4 bg-[#005960] hover:bg-[#008f99] text-white px-4 py-2 rounded">
               Save
             </button>
           </form>
