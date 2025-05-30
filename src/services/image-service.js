@@ -25,6 +25,10 @@ class ImageService {
             url: value,
         })
     }
+
+    async removeImage(id) {
+        return await api.delete(`images/${id}`);
+    }
 }
 
 export default new ImageService();
