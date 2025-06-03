@@ -16,5 +16,13 @@ export default defineConfig({
             '@': fileURLToPath(new URL('./src', import.meta.url)),
             'vue': 'vue/dist/vue.esm-bundler.js'
         }
+    },
+    build: {
+        rollupOptions: {
+            input: {
+                main: resolve(__dirname, 'index.html'),
+                notFound: resolve(__dirname, 'index.html')
+            }
+        }
     }
 })
