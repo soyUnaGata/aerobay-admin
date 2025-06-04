@@ -8,7 +8,9 @@ class AccessoryService {
     }
 
     async addAccessory(accessory) {
-        return await api.post(`accessories`, accessory)
+        const response = await api.post(`accessories`, accessory)
+        return response.data
+
     }
 
     async updateAccessory(id, accessory) {
