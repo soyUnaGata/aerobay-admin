@@ -11,8 +11,8 @@ export default defineConfig({
     css: {
         postcss: './postcss.config.js',
     },
-    base: '/aerobay-admin/',
-    publicPath: '/aerobay-admin/',
+    base: '/aerobay-admin',
+    publicPath: '/aerobay-admin',
     resolve: {
         alias: {
             '@': fileURLToPath(new URL('./src', import.meta.url)),
