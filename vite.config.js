@@ -11,13 +11,13 @@ export default defineConfig({
     css: {
         postcss: './postcss.config.js',
     },
-    base: '/aerobay-admin',
     resolve: {
         alias: {
             '@': fileURLToPath(new URL('./src', import.meta.url)),
             'vue': 'vue/dist/vue.esm-bundler.js'
         }
     },
+    base: '/aerobay-admin',
     build: {
         rollupOptions: {
             input: {
@@ -25,5 +25,4 @@ export default defineConfig({
             }
         }
     },
-
 })
