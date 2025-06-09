@@ -90,8 +90,6 @@
         <span>Tom Cook</span>
       </div>
     </aside>
-    <main class="flex-1 p-10 bg-gray-100">
-    </main>
   </div>
 </template>
 
