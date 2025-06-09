@@ -47,7 +47,7 @@
             </router-link>
           </li>
           <li>
-            <router-link :to="{name: 'filters'}" class="flex items-center space-x-4 p-2 rounded-lg hover:bg-gray-800">
+            <router-link to="/filters" class="flex items-center space-x-4 p-2 rounded-lg hover:bg-gray-800">
               <span class="text-gray-400">📊</span>
               <span>Filters</span>
             </router-link>
