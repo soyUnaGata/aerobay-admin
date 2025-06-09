@@ -1,5 +1,4 @@
 <template>
-
   <nav class="fixed left-0 top-0 h-screen w-64 bg-gray-800 text-white">
     <NavBar/>
   </nav>
